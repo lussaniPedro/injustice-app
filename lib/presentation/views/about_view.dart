@@ -9,6 +9,8 @@ class AboutView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Sobre o Jogo')),
       drawer: AppDrawer(),
@@ -18,18 +20,26 @@ class AboutView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Icon(
-                Icons.videogame_asset,
-                size: 100,
-                color: Theme.of(context).colorScheme.onSecondary,
+              child: Container(
+                padding: AppSpacing.paddingLg,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.secondary.withValues(alpha: 0.1),
+                      colorScheme.primary.withValues(alpha: 0.05),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.videogame_asset,
+                  size: 80,
+                  color: colorScheme.secondary,
+                ),
               ),
             ),
-            // const SizedBox(height: AppSpacing.lg),
-            // Text(
-            //   'Sobre o Jogo',
-            //   style: context.textStyles.headlineMedium?.bold,
-            //   textAlign: TextAlign.center,
-            // ),
             const SizedBox(height: AppSpacing.xl),
             InfoSection(
               titulo: 'Descrição',
@@ -62,17 +72,25 @@ class AboutView extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Função em desenvolvimento')),
+                    SnackBar(
+                      content: const Text('Função em desenvolvimento'),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      backgroundColor: colorScheme.secondary,
+                    ),
                   );
                 },
                 icon: Icon(
                   Icons.help_outline,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  color: colorScheme.secondary,
                 ),
                 label: Text(
                   'Ajuda e Suporte',
                   style: context.textStyles.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
+                    color: colorScheme.secondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -80,9 +98,10 @@ class AboutView extends StatelessWidget {
                     horizontal: AppSpacing.lg,
                     vertical: AppSpacing.md,
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimary.withValues(alpha: 0.1),
+                  side: BorderSide(color: colorScheme.secondary, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
                 ),
               ),
             ),
@@ -101,24 +120,34 @@ class InfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(titulo, style: context.textStyles.titleLarge?.semiBold),
+        Text(
+          titulo,
+          style: context.textStyles.titleLarge?.semiBold.withColor(
+            colorScheme.onSurface,
+          ),
+        ),
         const SizedBox(height: AppSpacing.sm),
         Container(
           width: double.infinity,
           padding: AppSpacing.paddingMd,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(AppRadius.md),
             border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.2),
+              color: colorScheme.outline.withValues(alpha: 0.1),
             ),
           ),
-          child: Text(conteudo, style: context.textStyles.bodyMedium),
+          child: Text(
+            conteudo,
+            style: context.textStyles.bodyMedium?.withColor(
+              colorScheme.onSurfaceVariant,
+            ),
+          ),
         ),
       ],
     );

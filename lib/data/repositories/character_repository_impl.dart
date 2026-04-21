@@ -12,22 +12,31 @@ final class CharacterRepositoryImpl implements ICharacterRepository {
     : _localStorage = localStorage;
 
   @override
-  Future<CharacterResult> deleteCharacter(String id) {
+  Future<CharacterResult> deleteCharacter(String id){
     return _localStorage.deleteCharacter(id);
   }
 
+  @override Future<VoidResult> deleteAllCharacters(){
+    return _localStorage.deleteAllCharacters();
+  }
+
   @override
-  Future<CharacterResult> getCharacterById(String id) {
+  Future<CharacterResult> getCharacterById(String id){
     return _localStorage.getCharacterById(id);
   }
 
   @override
-  Future<ListCharacterResult> getAllCharacters() {
+  Future<ListCharacterResult> getAllCharacters(){
     return _localStorage.getAllCharacters();
   }
 
   @override
-  Future<CharacterResult> saveCharacter(Character character) {
+  Future<CharacterResult> saveCharacter(Character character){
     return _localStorage.saveCharacter(character);
+  }
+
+  @override
+  Future<CharacterResult> updateCharacter(Character character){
+    return _localStorage.updateCharacter(character);
   }
 }

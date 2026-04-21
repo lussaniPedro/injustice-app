@@ -4,8 +4,8 @@ import 'package:signals_flutter/signals_flutter.dart';
 enum SortBy { name, level, stars }
 
 extension SortByExtension on SortBy {
-  int compare(Character a, Character b) {
-    switch (this) {
+  int compare(Character a, Character b){
+    switch (this){
       case SortBy.name:
         return a.name.compareTo(b.name);
 
@@ -24,7 +24,7 @@ enum LevelFilter { all, below30, below60, upTo70, max80 }
 
 extension LevelFilterExtension on LevelFilter {
   String get label {
-    switch (this) {
+    switch (this){
       case LevelFilter.all:
         return 'Todos';
       case LevelFilter.below30:
@@ -38,8 +38,8 @@ extension LevelFilterExtension on LevelFilter {
     }
   }
 
-  bool match(int level) {
-    switch (this) {
+  bool match(int level){
+    switch (this){
       case LevelFilter.all:
         return true;
 
@@ -58,12 +58,17 @@ extension LevelFilterExtension on LevelFilter {
   }
 }
 
+enum CharacterSuccessEvent {created, updated, deleted}
+
 class CharactersStateViewmodel {
   /// Estado da Lista de Personagens, inicializada como nula
-  final state = Signal<List<Character>>([]);
+  final state = signal<List<Character>>([]);
 
   /// Mensagem de erro ou aviso, inicializada como nula
   final message = signal<String?>(null);
+
+  /// Evento de sucesso para operações de character, inicializado como nulo
+  final successEvent = signal<CharacterSuccessEvent?>(null);
 
   /// Indica se o painel de filtros está expandido ou não
   final isFilterPanelExpanded = signal(false);
@@ -82,51 +87,29 @@ class CharactersStateViewmodel {
   /// ------------------------------
   /// FILTROS
   /// ------------------------------
-  late final filteredCharacters = computed<List<Character>>(() {
+  late final filteredCharacters = computed<List<Character>>((){
     var filtered = List<Character>.from(state.value);
 
     /// filtro raridade
-    if (selectedRarities.value.isNotEmpty) {
+    if(selectedRarities.value.isNotEmpty){
       filtered = filtered
           .where((c) => selectedRarities.value.contains(c.rarity))
           .toList();
     }
 
     /// filtro classe
-    if (selectedClasses.value.isNotEmpty) {
+    if(selectedClasses.value.isNotEmpty){
       filtered = filtered
           .where((c) => selectedClasses.value.contains(c.characterClass))
           .toList();
     }
 
     /// filtro alinhamento
-    if (selectedAlignments.value.isNotEmpty) {
+    if(selectedAlignments.value.isNotEmpty){
       filtered = filtered
           .where((c) => selectedAlignments.value.contains(c.alignment))
           .toList();
     }
-
-    /// filtro level
-    // switch (levelFilter.value) {
-    //   case LevelFilter.below30:
-    //     filtered = filtered.where((c) => c.level < 30).toList();
-    //     break;
-
-    //   case LevelFilter.below60:
-    //     filtered = filtered.where((c) => c.level < 60).toList();
-    //     break;
-
-    //   case LevelFilter.upTo70:
-    //     filtered = filtered.where((c) => c.level <= 70).toList();
-    //     break;
-
-    //   case LevelFilter.max80:
-    //     filtered = filtered.where((c) => c.level == 80).toList();
-    //     break;
-
-    //   case LevelFilter.all:
-    //     break;
-    // }
 
     filtered = filtered.where((c) => levelFilter.value.match(c.level)).toList();
 
@@ -136,62 +119,27 @@ class CharactersStateViewmodel {
   /// ------------------------------
   /// ORDENAÇÃO
   /// ------------------------------
-  late final sortedCharacters = computed<List<Character>>(() {
+  late final sortedCharacters = computed<List<Character>>((){
     final list = List<Character>.from(filteredCharacters.value);
 
-    list.sort((a, b) {
+    list.sort((a, b){
       final result = sortBy.value.compare(a, b);
 
       return sortOrder.value == SortOrder.ascending ? result : -result;
     });
 
-    // switch (sortBy.value) {
-    //   case SortBy.name:
-    //     list.sort((a, b) {
-    //       final compare = a.name.compareTo(b.name);
-    //       return sortOrder.value == SortOrder.ascending ? compare : -compare;
-    //     });
-    //     break;
-
-    //   case SortBy.level:
-    //     list.sort((a, b) {
-    //       final compare = a.level.compareTo(b.level);
-    //       return sortOrder.value == SortOrder.ascending ? compare : -compare;
-    //     });
-    //     break;
-
-    //   case SortBy.stars:
-    //     list.sort((a, b) {
-    //       final compare = a.stars.compareTo(b.stars);
-    //       return sortOrder.value == SortOrder.ascending ? compare : -compare;
-    //     });
-    //     break;
-    // }
-
     return list;
   });
 
-  /// ------------------------------
-  /// HELPERS PARA UI
-  /// ------------------------------
-
-  /// Indica se existem filtros ativos
-  // late final hasActiveFilters = computed<bool>(() {
-  //   return selectedRarities.value.isNotEmpty ||
-  //       selectedClasses.value.isNotEmpty ||
-  //       selectedAlignments.value.isNotEmpty ||
-  //       levelFilter.value != LevelFilter.all;
-  // });
-
   /// Quantidade de filtros ativos
-  late final activeFiltersCount = computed<int>(() {
+  late final activeFiltersCount = computed<int>((){
     int count = 0;
 
     count += selectedRarities.value.length;
     count += selectedClasses.value.length;
     count += selectedAlignments.value.length;
 
-    if (levelFilter.value != LevelFilter.all) {
+    if(levelFilter.value != LevelFilter.all){
       count++;
     }
 
@@ -211,11 +159,11 @@ class CharactersStateViewmodel {
   /// ORDENAÇÃO
   /// ------------------------------
 
-  void setSortBy(SortBy sort) {
+  void setSortBy(SortBy sort){
     sortBy.value = sort;
   }
 
-  void toggleSortOrder() {
+  void toggleSortOrder(){
     sortOrder.value = sortOrder.value == SortOrder.ascending
         ? SortOrder.descending
         : SortOrder.ascending;
@@ -225,10 +173,10 @@ class CharactersStateViewmodel {
   /// FILTROS
   /// ------------------------------
 
-  void toggleRarity(CharacterRarity rarity) {
+  void toggleRarity(CharacterRarity rarity){
     final set = Set<CharacterRarity>.from(selectedRarities.value);
 
-    if (set.contains(rarity)) {
+    if(set.contains(rarity)){
       set.remove(rarity);
     } else {
       set.add(rarity);
@@ -237,10 +185,10 @@ class CharactersStateViewmodel {
     selectedRarities.value = set;
   }
 
-  void toggleClass(CharacterClass characterClass) {
+  void toggleClass(CharacterClass characterClass){
     final set = Set<CharacterClass>.from(selectedClasses.value);
 
-    if (set.contains(characterClass)) {
+    if(set.contains(characterClass)){
       set.remove(characterClass);
     } else {
       set.add(characterClass);
@@ -249,10 +197,10 @@ class CharactersStateViewmodel {
     selectedClasses.value = set;
   }
 
-  void toggleAlignment(CharacterAlignment alignment) {
+  void toggleAlignment(CharacterAlignment alignment){
     final set = Set<CharacterAlignment>.from(selectedAlignments.value);
 
-    if (set.contains(alignment)) {
+    if(set.contains(alignment)){
       set.remove(alignment);
     } else {
       set.add(alignment);
@@ -261,22 +209,22 @@ class CharactersStateViewmodel {
     selectedAlignments.value = set;
   }
 
-  void toggleFilterPanel() {
+  void toggleFilterPanel(){
     isFilterPanelExpanded.value = !isFilterPanelExpanded.value;
   }
 
-  void setLevelFilter(LevelFilter filter) {
+  void setLevelFilter(LevelFilter filter){
     levelFilter.value = filter;
   }
 
-  bool isSectionExpanded(String key) {
+  bool isSectionExpanded(String key){
     return expandedSections.value.contains(key);
   }
 
-  void toggleSection(String key) {
+  void toggleSection(String key){
     final set = Set<String>.from(expandedSections.value);
 
-    if (set.contains(key)) {
+    if(set.contains(key)){
       set.remove(key);
     } else {
       set.add(key);
@@ -285,7 +233,7 @@ class CharactersStateViewmodel {
     expandedSections.value = set;
   }
 
-  void clearFilters() {
+  void clearFilters(){
     selectedRarities.value = {};
     selectedClasses.value = {};
     selectedAlignments.value = {};

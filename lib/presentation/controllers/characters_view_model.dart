@@ -21,6 +21,9 @@ class CharactersViewModel {
       state: _state,
       getAccountCommand: GetAllCharactersCommand(facade),
       createCharacterCommand: CreateCharacterCommand(facade),
+      updateCharacterCommand: UpdateCharacterCommand(facade),
+      deleteCharacterCommand: DeleteCharacterCommand(facade),
+      deleteAllCharactersCommand: DeleteAllCharactersCommand(facade)
      );
   }
    // --- Comandos expostos ---

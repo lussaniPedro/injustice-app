@@ -93,7 +93,6 @@ class AccountCommandsViewmodel {
       onSuccess: (_) {
         state.successEvent.value = AccountSuccessEvent.deleted;
         state.setAccount(null); // Limpa a conta do estado
-        
       },
       onFailure: (err) {
         state.setMessage(err.msg);
@@ -121,7 +120,6 @@ class AccountCommandsViewmodel {
       onSuccess: (_) {
         state.successEvent.value = AccountSuccessEvent.updated;
         state.clearMessage(); // Limpa mensagens anteriores
-        
       },
       onFailure: (err) {
         state.setMessage(err.msg);

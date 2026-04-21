@@ -23,7 +23,6 @@ class AccountCreateView extends StatefulWidget {
 }
 
 class _AccountCreateViewState extends State<AccountCreateView> {
-  // late final CriarContaViewModel _viewModel;
   late final AccountViewModel _vmAccount;
   late final void Function() _disposeAccountEffect;
   late final void Function() _disposeSuccessEffect;
@@ -32,10 +31,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   final _formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
 
-  // late final FormFieldControl _emailField;
-  // late final FormFieldControl _nomeField;
-  // late final FormFieldControl _displayNameField;
-  // late final List<FormFieldControl> _fields;
   late final AccountFormFieldsController _formFields;
 
   DateTime _createdAt = DateTime.now();
@@ -45,54 +40,31 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   int _energy = 1;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _formFields = AccountFormFieldsController();
-
-    // _emailField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _nomeField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _displayNameField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _fields = [_emailField, _nomeField, _displayNameField];
 
     _vmAccount = injector.get<AccountViewModel>();
     _vmAccount.accountState.clearMessage();
     _vmAccount.accountState.clearSuccessEvent();
 
-    _disposeAccountEffect = effect(() {
+    _disposeAccountEffect = effect((){
       final account = _vmAccount.accountState.state.value;
 
-      if (account != null) {
+      if(account != null){
         _preencherCampos(account);
       } else {
         _limparCampos();
       }
     });
 
-    _disposeErrorEffect = effect(() {
+    _disposeErrorEffect = effect((){
       final errorMessage = _vmAccount.accountState.message.value;
 
-      if (errorMessage != null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
+      if(errorMessage != null && mounted){
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          if(!mounted) return;
 
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-          // );
           showSnackBar(context, errorMessage, backgroundColor: Colors.red);
 
           _vmAccount.accountState.clearMessage();
@@ -100,17 +72,17 @@ class _AccountCreateViewState extends State<AccountCreateView> {
       }
     });
 
-    _disposeSuccessEffect = effect(() {
+    _disposeSuccessEffect = effect((){
       final event = _vmAccount.accountState.successEvent.value;
 
-      if (event != null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!mounted) return;
+      if(event != null && mounted){
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          if(!mounted) return;
 
           String message;
           Color color;
 
-          switch (event) {
+          switch (event){
             case AccountSuccessEvent.created:
               message = 'Conta criada com sucesso!';
               color = Colors.green;
@@ -121,7 +93,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
             case AccountSuccessEvent.deleted:
               message = 'Conta excluída com sucesso!';
-              color = Colors.red.shade400; // vermelho mais suave
+              color = Colors.red.shade400;
           }
 
           showSnackBar(context, message, backgroundColor: color);
@@ -133,7 +105,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   }
 
   @override
-  void dispose() {
+  void dispose(){
     _disposeAccountEffect();
     _disposeSuccessEffect();
     _disposeErrorEffect();
@@ -141,14 +113,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     _scrollController.dispose();
 
     _formFields.dispose();
-    // for (final field in _fields) {
-    //   field.focus.dispose();
-    //   field.controller.dispose();
-    // }
+
     super.dispose();
   }
 
-  void _preencherCampos(Account account) {
+  void _preencherCampos(Account account){
     _formFields.email.controller.text = account.email;
     _formFields.name.controller.text = account.name;
     _formFields.displayName.controller.text = account.displayName;
@@ -159,13 +128,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     _gems = account.gems;
     _energy = account.energy;
 
-    setState(() {});
+    setState((){});
   }
 
-  void _limparCampos() {
+  void _limparCampos(){
     _formKey.currentState?.reset();
-    _formFields.clear();
-    // _clearForm();
 
     _createdAt = DateTime.now();
     _level = 1;
@@ -173,16 +140,10 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     _gems = 0;
     _energy = 1;
 
-    setState(() {});
+    setState((){});
   }
 
-  // void _clearForm() {
-  //   for (final field in _fields) {
-  //     field.controller.clear();
-  //   }
-  // }
-
-  void _resetFormView() {
+  void _resetFormView(){
     // Remove foco de qualquer TextField
     FocusScope.of(context).unfocus();
 
@@ -194,11 +155,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     );
   }
 
-  void _focusFirstError() {
-    for (final field in _formFields.fields) {
+  void _focusFirstError(){
+    for(final field in _formFields.fields){
       final state = field.key.currentState;
 
-      if (state != null && !state.isValid) {
+      if(state != null && !state.isValid){
         field.focus.requestFocus();
 
         Scrollable.ensureVisible(
@@ -212,10 +173,10 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     }
   }
 
-  bool _validateForm() {
+  bool _validateForm(){
     final valid = _formKey.currentState!.validate();
 
-    if (!valid) {
+    if(!valid){
       _focusFirstError();
     }
 
@@ -223,7 +184,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   }
 
   Future<void> _salvarConta() async {
-    if (!_validateForm()) return;
+    if(!_validateForm()) return;
 
     Account newAccount = Account(
       email: _formFields.email.controller.text.trim(),
@@ -237,7 +198,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
       updatedAt: _createdAt,
     );
 
-    if (_vmAccount.accountState.hasAccount.value) {
+    if(_vmAccount.accountState.hasAccount.value){
       await _vmAccount.commands.updateAccount(newAccount);
     } else {
       await _vmAccount.commands.saveAccount(newAccount);
@@ -255,7 +216,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
       confirmText: 'EXCLUIR',
     );
 
-    if (!confirm) return;
+    if(!confirm) return;
 
     await _vmAccount.commands.deleteAccount();
     _formKey.currentState?.reset();
@@ -264,7 +225,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
         title: Watch((_) => Text(_vmAccount.accountState.labelEditMode.value)),
@@ -280,18 +241,26 @@ class _AccountCreateViewState extends State<AccountCreateView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.person_add,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                Container(
+                  padding: AppSpacing.paddingLg,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_add,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                // Text(
-                //   'Criar Nova Conta',
-                //   style: context.textStyles.headlineMedium?.bold,
-                //   textAlign: TextAlign.center,
-                // ),
-                // const SizedBox(height: AppSpacing.md),
                 Text(
                   'Preencha os dados abaixo para criar sua conta',
                   style: context.textStyles.bodyMedium?.withColor(
@@ -344,17 +313,26 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 const SizedBox(height: AppSpacing.md),
 
                 // Data de Criação
-                DateWheelPicker(
-                  label: 'Data de Criação',
-                  selectedDate: _createdAt,
-                  onDateSelected: (date) => setState(() => _createdAt = date),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: DateWheelPicker(
+                    label: 'Data de Criação',
+                    selectedDate: _createdAt,
+                    onDateSelected: (date) => setState(() => _createdAt = date),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
 
                 // Level
                 AccountAttributeCard(
                   icon: Icons.star,
-                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconColor: Theme.of(context).colorScheme.secondary,
                   label: 'Nível',
                   hint: '[1, 80]',
                   minValue: 1,
@@ -409,7 +387,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   children: [
                     // BOTÃO SALVAR / EDITAR
                     Expanded(
-                      child: Watch((context) {
+                      child: Watch((context){
                         final isRunning =
                             _vmAccount
                                 .commands
@@ -428,9 +406,13 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                             padding: const EdgeInsets.symmetric(
                               vertical: AppSpacing.md,
                             ),
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimary,
+                            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                            backgroundColor: isRunning 
+                                ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)
+                                : Theme.of(context).colorScheme.secondary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
                           ),
                           child: isRunning
                               ? const SizedBox(
@@ -445,7 +427,10 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                                 )
                               : Text(
                                   _vmAccount.accountState.labelEditMode.value,
-                                  style: context.textStyles.titleMedium?.bold,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                         );
                       }),
@@ -455,7 +440,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
                     // BOTÃO EXCLUIR
                     Expanded(
-                      child: Watch((_) {
+                      child: Watch((_){
                         final canDelete =
                             _vmAccount.accountState.canDelete.value;
 
@@ -490,9 +475,10 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                             foregroundColor: Theme.of(
                               context,
                             ).colorScheme.onPrimary,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.tertiary,
+                            backgroundColor: Colors.red.shade700,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
                           ),
                           child: isDeleting
                               ? const SizedBox(
@@ -507,7 +493,10 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                                 )
                               : Text(
                                   'EXCLUIR',
-                                  style: context.textStyles.titleMedium?.bold,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                         );
                       }),
@@ -530,7 +519,7 @@ class AccountFormFieldsController {
 
   List<FormFieldControl> get fields => [email, name, displayName];
 
-  static FormFieldControl _createField() {
+  static FormFieldControl _createField(){
     return (
       key: GlobalKey<FormFieldState>(),
       focus: FocusNode(),
@@ -538,14 +527,14 @@ class AccountFormFieldsController {
     );
   }
 
-  void clear() {
-    for (final field in fields) {
+  void clear(){
+    for(final field in fields){
       field.controller.clear();
     }
   }
 
-  void dispose() {
-    for (final field in fields) {
+  void dispose(){
+    for(final field in fields){
       field.focus.dispose();
       field.controller.dispose();
     }

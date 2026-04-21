@@ -38,6 +38,7 @@ class AppRadius {
   static const double md = 12.0;
   static const double lg = 16.0;
   static const double xl = 24.0;
+  static const double xxl = 32.0;
 }
 
 // =============================================================================
@@ -74,93 +75,76 @@ extension TextStyleExtensions on TextStyle {
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
-// =============================================================================
-// COLORS
-// =============================================================================
-
-/// Color palette based on game theme
+/// Color palette based on game theme - DARK PURPLE
 class LightModeColors {
-  // ===========================================================================
-  // PRIMARY — Azul profundo (base do app)
-  // ===========================================================================
-  static const lightPrimary = Color(0xFF0A0E3D);
-  static const lightOnPrimary = Color(0xFFE6E8FF);
+  // PRIMARY — Roxo escuro e sofisticado
+  static const lightPrimary = Color(0xFF4C3B9E);
+  static const lightOnPrimary = Color(0xFFFFFFFF);
 
-  // Containers do primary (botões, chips)
-  static const lightPrimaryContainer = Color(0xFF1D2363);
-  static const lightOnPrimaryContainer = Color(0xFFD6D8F0);
+  static const lightPrimaryContainer = Color(0xFFEDE8FF);
+  static const lightOnPrimaryContainer = Color(0xFF1E1A3A);
 
-  // ===========================================================================
-  // SECONDARY — Vermelho (ações destrutivas / alerta)
-  // ===========================================================================
-  static const lightSecondary = Color(0xFFBA1A1A);
+  // SECONDARY — Roxo mais profundo e vibrante
+  static const lightSecondary = Color(0xFF6B3FAF);
   static const lightOnSecondary = Color(0xFFFFFFFF);
 
-  // Tertiary — variação mais suave do vermelho
-  static const lightTertiary = Color(0xFFD65C5C);
-  static const lightOnTertiary = Color(0xFF2B0B0C);
+  static const lightTertiary = Color(0xFF8B5FCF);
+  static const lightOnTertiary = Color(0xFFFFFFFF);
 
-  // ===========================================================================
-  // ERROR — separado semanticamente do secondary
-  // ===========================================================================
-  static const lightError = Color(0xFFBA1A1A);
+  // ERROR — vermelho controlado
+  static const lightError = Color(0xFFE53935);
   static const lightOnError = Color(0xFFFFFFFF);
-  static const lightErrorContainer = Color(0xFFFFDAD6);
-  static const lightOnErrorContainer = Color(0xFF410002);
+  static const lightErrorContainer = Color(0xFFFFE7E6);
+  static const lightOnErrorContainer = Color(0xFF3B0A0A);
 
-  // ===========================================================================
-  // BACKGROUND & SURFACE — azul escuro dominante
-  // ===========================================================================
-  static const lightBackground = Color(0xFF0A0E3D); // fundo das telas
-  static const lightSurface = Color(0xFF12175A); // cards, sheets
-  static const lightSurfaceVariant = Color(0xFF1B217A); // containers elevados
+  // BACKGROUND — Roxo acinzentado bem claro
+  static const lightBackground = Color(0xFFF5F3FF);
+  static const lightSurface = Color(0xFFFFFFFF);
+  static const lightSurfaceVariant = Color(0xFFF0EEFA);
 
-  static const lightOnSurface = Color(0xFFFFFFFF);
-  static const lightOnSurfaceVariant = Color(0xFFE6E8FF);
-  // ===========================================================================
-  // OUTLINE / DIVIDER / SHADOW
-  // ===========================================================================
-  static const lightOutline = Color(0xFF3C418A);
-  static const lightShadow = Color(0xFF000000);
+  static const lightOnSurface = Color(0xFF1A1A2E);
+  static const lightOnSurfaceVariant = Color(0xFF5A5578);
 
-  // ===========================================================================
-  // INVERSE (usado em contrastes)
-  // ===========================================================================
-  static const lightInversePrimary = Color(0xFF8B90D8);
+  static const lightOutline = Color(0xFFE3E0F0);
+  static const lightShadow = Color(0x1A000000);
+
+  static const lightInversePrimary = Color(0xFF7B5FD4);
 }
 
-/// Dark mode colors adapted to game theme
+/// Dark mode colors - Purple dark theme
 class DarkModeColors {
-  // Primary: Lighter blue for dark background
-  static const darkPrimary = Color(0xFF8B90D8);
-  static const darkOnPrimary = Color(0xFF0A0E3D);
-  static const darkPrimaryContainer = Color(0xFF1D2363);
-  static const darkOnPrimaryContainer = Color(0xFFD6D8F0);
+  // PRIMARY — Roxo escuro profundo
+  static const darkPrimary = Color(0xFF7B5FD4);
+  static const darkOnPrimary = Color(0xFF12101F);
 
-  // Secondary: Lighter red for dark background
-  static const darkSecondary = Color(0xFFE57373);
-  static const darkOnSecondary = Color(0xFF5A1A1B);
+  static const darkPrimaryContainer = Color(0xFF2A2448);
+  static const darkOnPrimaryContainer = Color(0xFFDDD6FF);
 
-  // Tertiary
-  static const darkTertiary = Color(0xFFEF9A9A);
-  static const darkOnTertiary = Color(0xFF6D2627);
+  // SECONDARY — Roxo intenso e escuro
+  static const darkSecondary = Color(0xFF9B6BFF);
+  static const darkOnSecondary = Color(0xFFFFFFFF);
 
-  // Error colors
-  static const darkError = Color(0xFFFFB4AB);
-  static const darkOnError = Color(0xFF690005);
-  static const darkErrorContainer = Color(0xFF93000A);
-  static const darkOnErrorContainer = Color(0xFFFFDAD6);
+  static const darkTertiary = Color(0xFFB58FFF);
+  static const darkOnTertiary = Color(0xFFFFFFFF);
 
-  // Surface and background: Dark with warm tones
-  static const darkSurface = Color(0xFF1A1C1E);
-  static const darkOnSurface = Color(0xFFE2E8F0);
-  static const darkSurfaceVariant = Color(0xFF44474E);
-  static const darkOnSurfaceVariant = Color(0xFFC4C7CF);
+  // ERROR — vermelho discreto
+  static const darkError = Color(0xFFFF5C5C);
+  static const darkOnError = Color(0xFF1A0B0B);
 
-  // Outline and shadow
-  static const darkOutline = Color(0xFF8E9099);
+  static const darkErrorContainer = Color(0xFF2A0F14);
+  static const darkOnErrorContainer = Color(0xFFFFCFCF);
+
+  // SURFACE — Roxo muito escuro (base do app)
+  static const darkSurface = Color(0xFF12101F);
+  static const darkOnSurface = Color(0xFFE8E6F5);
+
+  static const darkSurfaceVariant = Color(0xFF1E1B30);
+  static const darkOnSurfaceVariant = Color(0xFFA9A4C9);
+
+  static const darkOutline = Color(0xFF33304A);
   static const darkShadow = Color(0xFF000000);
-  static const darkInversePrimary = Color(0xFF2D3484);
+
+  static const darkInversePrimary = Color(0xFF8B6BDF);
 }
 
 /// Font size constants
@@ -186,7 +170,7 @@ class FontSizes {
 // THEMES
 // =============================================================================
 
-/// Light theme with modern, neutral aesthetic
+/// Light theme with modern purple aesthetic
 ThemeData get lightTheme => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.light(
@@ -213,20 +197,9 @@ ThemeData get lightTheme => ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: LightModeColors.lightBackground,
 
-  filledButtonTheme: FilledButtonThemeData(
-    style: FilledButton.styleFrom(
-      backgroundColor: LightModeColors.lightSecondary.withValues(alpha: 0.6),
-      foregroundColor: LightModeColors.lightOnSecondary,
-      textStyle: const TextStyle(fontWeight: FontWeight.w600),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-    ),
-  ),
-
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: LightModeColors.lightSecondary.withValues(alpha: 0.6),
+      backgroundColor: LightModeColors.lightSecondary,
       foregroundColor: LightModeColors.lightOnSecondary,
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -241,20 +214,45 @@ ThemeData get lightTheme => ThemeData(
     elevation: 0,
     scrolledUnderElevation: 0,
   ),
+  
   cardTheme: CardThemeData(
     elevation: 0,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       side: BorderSide(
         color: LightModeColors.lightOutline.withOpacity(0.2),
         width: 1,
       ),
     ),
   ),
-  textTheme: _buildTextTheme(Brightness.light),
+  
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: LightModeColors.lightSurface,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(
+        color: LightModeColors.lightOutline,
+        width: 1,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(
+        color: LightModeColors.lightSecondary,
+        width: 2,
+      ),
+    ),
+  ),
+  
+  textTheme: _baseTextTheme,
 );
 
-/// Dark theme with good contrast and readability
+/// Dark theme with deep purple and good contrast
 ThemeData get darkTheme => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.dark(
@@ -280,95 +278,53 @@ ThemeData get darkTheme => ThemeData(
   ),
   brightness: Brightness.dark,
   scaffoldBackgroundColor: DarkModeColors.darkSurface,
+  
   appBarTheme: const AppBarTheme(
     backgroundColor: Colors.transparent,
     foregroundColor: DarkModeColors.darkOnSurface,
     elevation: 0,
     scrolledUnderElevation: 0,
   ),
+  
   cardTheme: CardThemeData(
     elevation: 0,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.lg),
       side: BorderSide(
-        color: DarkModeColors.darkOutline.withOpacity(0.2),
+        color: DarkModeColors.darkOutline.withValues(alpha: 0.2),
         width: 1,
       ),
     ),
   ),
-  textTheme: _buildTextTheme(Brightness.dark),
+  
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: DarkModeColors.darkSurfaceVariant,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(
+        color: DarkModeColors.darkOutline,
+        width: 1,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      borderSide: BorderSide(
+        color: DarkModeColors.darkSecondary,
+        width: 2,
+      ),
+    ),
+  ),
+  
+  textTheme: GoogleFonts.interTextTheme().apply(
+    bodyColor: DarkModeColors.darkOnSurface,
+    displayColor: DarkModeColors.darkOnSurface,
+  ),
 );
 
 /// Build text theme using Inter font family
-TextTheme _buildTextTheme(Brightness brightness) {
-  return TextTheme(
-    displayLarge: GoogleFonts.inter(
-      fontSize: FontSizes.displayLarge,
-      fontWeight: FontWeight.w400,
-      letterSpacing: -0.25,
-    ),
-    displayMedium: GoogleFonts.inter(
-      fontSize: FontSizes.displayMedium,
-      fontWeight: FontWeight.w400,
-    ),
-    displaySmall: GoogleFonts.inter(
-      fontSize: FontSizes.displaySmall,
-      fontWeight: FontWeight.w400,
-    ),
-    headlineLarge: GoogleFonts.inter(
-      fontSize: FontSizes.headlineLarge,
-      fontWeight: FontWeight.w600,
-      letterSpacing: -0.5,
-    ),
-    headlineMedium: GoogleFonts.inter(
-      fontSize: FontSizes.headlineMedium,
-      fontWeight: FontWeight.w600,
-    ),
-    headlineSmall: GoogleFonts.inter(
-      fontSize: FontSizes.headlineSmall,
-      fontWeight: FontWeight.w600,
-    ),
-    titleLarge: GoogleFonts.inter(
-      fontSize: FontSizes.titleLarge,
-      fontWeight: FontWeight.w600,
-    ),
-    titleMedium: GoogleFonts.inter(
-      fontSize: FontSizes.titleMedium,
-      fontWeight: FontWeight.w500,
-    ),
-    titleSmall: GoogleFonts.inter(
-      fontSize: FontSizes.titleSmall,
-      fontWeight: FontWeight.w500,
-    ),
-    labelLarge: GoogleFonts.inter(
-      fontSize: FontSizes.labelLarge,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
-    ),
-    labelMedium: GoogleFonts.inter(
-      fontSize: FontSizes.labelMedium,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-    ),
-    labelSmall: GoogleFonts.inter(
-      fontSize: FontSizes.labelSmall,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 0.5,
-    ),
-    bodyLarge: GoogleFonts.inter(
-      fontSize: FontSizes.bodyLarge,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0.15,
-    ),
-    bodyMedium: GoogleFonts.inter(
-      fontSize: FontSizes.bodyMedium,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0.25,
-    ),
-    bodySmall: GoogleFonts.inter(
-      fontSize: FontSizes.bodySmall,
-      fontWeight: FontWeight.w400,
-      letterSpacing: 0.4,
-    ),
-  );
-}
+final TextTheme _baseTextTheme = GoogleFonts.interTextTheme();

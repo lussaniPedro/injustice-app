@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 /// Widget para seleção de data usando um wheel picker (rolagem)
-///
+
 /// Abre um modal (BottomSheet) com um seletor de data estilo iOS
 /// com formato brasileiro: dia, mês por extenso em português e ano
 class DateWheelPicker extends StatelessWidget {
@@ -63,16 +63,16 @@ class DateWheelPicker extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
       ),
-      builder: (BuildContext context) {
+      builder: (BuildContext context){
         return StatefulBuilder(
-          builder: (context, setState) {
+          builder: (context, setState){
             // Calcula o número de dias no mês selecionado
             int daysInMonth = DateTime(selectedYear, selectedMonth + 1, 0).day;
 
             // Ajusta o dia se estiver fora do range
-            if (selectedDay > daysInMonth) {
+            if(selectedDay > daysInMonth){
               selectedDay = daysInMonth;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
+              WidgetsBinding.instance.addPostFrameCallback((_){
                 dayController.animateToItem(
                   selectedDay - 1,
                   duration: const Duration(milliseconds: 200),
@@ -98,7 +98,7 @@ class DateWheelPicker extends StatelessWidget {
                               (context.textStyles.titleMedium ??
                                       const TextStyle())
                                   .withColor(
-                                    Theme.of(context).colorScheme.secondary,
+                                    Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),
                         ),
                       ),
@@ -109,7 +109,7 @@ class DateWheelPicker extends StatelessWidget {
                             const TextStyle(),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: (){
                           onDateSelected(
                             DateTime(selectedYear, selectedMonth, selectedDay),
                           );
@@ -121,7 +121,7 @@ class DateWheelPicker extends StatelessWidget {
                               (context.textStyles.titleMedium ??
                                       const TextStyle())
                                   .bold
-                                  .withColor(Colors.amber.shade700),
+                                  .withColor(Theme.of(context).colorScheme.secondary),
                         ),
                       ),
                     ],
@@ -138,8 +138,8 @@ class DateWheelPicker extends StatelessWidget {
                           child: CupertinoPicker(
                             scrollController: dayController,
                             itemExtent: 40,
-                            onSelectedItemChanged: (index) {
-                              setState(() {
+                            onSelectedItemChanged: (index){
+                              setState((){
                                 selectedDay = index + 1;
                               });
                             },
@@ -148,7 +148,9 @@ class DateWheelPicker extends StatelessWidget {
                               (index) => Center(
                                 child: Text(
                                   '${index + 1}',
-                                  style: context.textStyles.bodyLarge,
+                                  style: context.textStyles.bodyLarge?.withColor(
+                                    Theme.of(context).colorScheme.onSurface,
+                                  ),
                                 ),
                               ),
                             ),
@@ -161,8 +163,8 @@ class DateWheelPicker extends StatelessWidget {
                           child: CupertinoPicker(
                             scrollController: monthController,
                             itemExtent: 40,
-                            onSelectedItemChanged: (index) {
-                              setState(() {
+                            onSelectedItemChanged: (index){
+                              setState((){
                                 selectedMonth = index + 1;
                               });
                             },
@@ -171,7 +173,9 @@ class DateWheelPicker extends StatelessWidget {
                                   (month) => Center(
                                     child: Text(
                                       month,
-                                      style: context.textStyles.bodyLarge,
+                                      style: context.textStyles.bodyLarge?.withColor(
+                                        Theme.of(context).colorScheme.onSurface,
+                                      ),
                                     ),
                                   ),
                                 )
@@ -185,8 +189,8 @@ class DateWheelPicker extends StatelessWidget {
                           child: CupertinoPicker(
                             scrollController: yearController,
                             itemExtent: 40,
-                            onSelectedItemChanged: (index) {
-                              setState(() {
+                            onSelectedItemChanged: (index){
+                              setState((){
                                 selectedYear = minDate.year + index;
                               });
                             },
@@ -195,7 +199,9 @@ class DateWheelPicker extends StatelessWidget {
                               (index) => Center(
                                 child: Text(
                                   '${minDate.year + index}',
-                                  style: context.textStyles.bodyLarge,
+                                  style: context.textStyles.bodyLarge?.withColor(
+                                    Theme.of(context).colorScheme.onSurface,
+                                  ),
                                 ),
                               ),
                             ),
@@ -218,20 +224,20 @@ class DateWheelPicker extends StatelessWidget {
     yearController.dispose();
   }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Selecionar data';
+  String _formatDate(DateTime? date){
+    if(date == null) return 'Selecionar data';
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     return '$day/$month/${date.year}';
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (label != null) ...[
+        if(label != null) ...[
           Text(
             label!,
             style: context.textStyles.labelLarge?.withColor(
@@ -249,11 +255,11 @@ class DateWheelPicker extends StatelessWidget {
               vertical: AppSpacing.md,
             ),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSecondary,
+              color: Theme.of(context).colorScheme.surface,
               border: Border.all(
                 color: Theme.of(
                   context,
-                ).colorScheme.outline.withValues(alpha: 0.5),
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
@@ -264,15 +270,15 @@ class DateWheelPicker extends StatelessWidget {
                   _formatDate(selectedDate),
                   style: context.textStyles.bodyLarge?.copyWith(
                     color: selectedDate != null
-                        ? Theme.of(context).colorScheme.primary
+                        ? Theme.of(context).colorScheme.onSurface
                         : Theme.of(
                             context,
-                          ).colorScheme.primary.withValues(alpha: 0.6),
+                          ).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 Icon(
                   Icons.calendar_today,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.secondary,
                   size: 20,
                 ),
               ],

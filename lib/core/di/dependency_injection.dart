@@ -46,7 +46,9 @@ void setupDependencyInjection() {
   injector.addSingleton<IGetAllCharactersUseCase>(GetAllCharactersUseCaseImpl.new);
   injector.addSingleton<IGetCharacterByIdUseCase>(GetCharacterByIdUseCaseImpl.new);
   injector.addSingleton<ISaveCharacterUseCase>(SaveCharacterUseCaseImpl.new);
+  injector.addSingleton<IUpdateCharacterUseCase>(UpdateCharacterUseCaseImpl.new);
   injector.addSingleton<IDeleteCharacterUseCase>(DeleteCharacterUseCaseImpl.new);
+  injector.addSingleton<IDeleteAllCharactersUseCase>(DeleteAllCharactersUseCaseImpl.new);
   
 
   // viewmodes

@@ -37,7 +37,7 @@ class InputTextField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final colorScheme = Theme.of(context).colorScheme;
     final borderRadius = BorderRadius.circular(AppRadius.md);
 
@@ -51,39 +51,40 @@ class InputTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       onFieldSubmitted: onFieldSubmitted,
 
-      style: TextStyle(color: colorScheme.primary),
+      style: TextStyle(color: colorScheme.onSurface),
 
       decoration: InputDecoration(
         labelText: label,
         hintText: hint ?? label,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
-        labelStyle: TextStyle(color: colorScheme.primary),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        labelStyle: TextStyle(color: colorScheme.secondary),
 
         floatingLabelStyle: TextStyle(
-          color: colorScheme.primary,
-          // color: colorScheme.secondary,
+          color: colorScheme.secondary,
           fontWeight: FontWeight.bold,
-          backgroundColor: colorScheme.onSecondary,
-          // backgroundColor: colorScheme.onSecondary,
+          backgroundColor: colorScheme.surface,
         ),
 
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: colorScheme.primary)
+            ? Icon(prefixIcon, color: colorScheme.secondary)
             : null,
 
         filled: true,
-        fillColor: colorScheme.onSecondary,
+        fillColor: colorScheme.surface,
 
-        border: OutlineInputBorder(borderRadius: borderRadius),
+        border: OutlineInputBorder(
+          borderRadius: borderRadius,
+          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
+        ),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.primary),
+          borderSide: BorderSide(color: colorScheme.outline.withValues(alpha: 0.2)),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderSide: BorderSide(color: colorScheme.secondary, width: 2),
         ),
 
         errorBorder: OutlineInputBorder(
@@ -91,9 +92,8 @@ class InputTextField extends StatelessWidget {
           borderSide: BorderSide(color: colorScheme.error),
         ),
         errorStyle: TextStyle(
-          color: colorScheme.tertiary, 
-          // color: Colors.white, 
-          fontWeight: FontWeight.bold,
+          color: colorScheme.error,
+          fontWeight: FontWeight.w500,
         ),
 
         focusedErrorBorder: OutlineInputBorder(

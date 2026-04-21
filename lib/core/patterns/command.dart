@@ -28,19 +28,26 @@ abstract base class Command<Success, Error>
 
   // Método para executar o comando com tratamento
   Future<Result<Success, Error>> call() async {
-    if (_running.value) return _result.value!; // já está rodando
-    _running.value = true; // indica que está rodando
-    _result.value = null; // limpa resultado anterior
-    _result.value = await execute(); // executa a ação
-    _running.value = false; // indica que terminou
-    return _result.value!;
+    if(_running.value){
+      throw Exception('Command already running');
+    }
+
+    _running.value = true;
+    _result.value = null;
+
+    final result = await execute();
+
+    _result.value = result;
+    _running.value = false;
+
+    return result;
   }
 
-  void clear() {
+  void clear(){
     _result.value = null;
   }
 
-  void reset() {
+  void reset(){
     _running.value = false;
     clear();
   }
@@ -54,7 +61,7 @@ abstract base class ParameterizedCommand<Success, Error, P>
   set parameter(P? value) => _parameter = value;
   P? get parameter => _parameter;
 
-  Future<Result<Success, Error>> executeWith(P parameter) {
+  Future<Result<Success, Error>> executeWith(P parameter){
     _parameter = parameter;
     return call();
   }
@@ -73,16 +80,16 @@ final class CompositeCommand<TOk, TError> extends Command<List<TOk>, TError> {
   Future<Result<List<TOk>, TError>> execute() async {
     final results = <TOk>[];
 
-    for (final command in _commands) {
+    for(final command in _commands){
       final result =
           await command.call(); // usa o call() para registrar estados
 
-      if (result.isFailure) {
+      if(result.isFailure){
         return Error(result.failureValueOrNull as TError);
       }
 
       final value = result.successValueOrNull;
-      if (value != null) {
+      if(value != null){
         results.add(value);
       }
     }

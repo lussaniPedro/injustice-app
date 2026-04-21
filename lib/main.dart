@@ -6,22 +6,30 @@ import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart' as AppTheme;
 import 'core/theme/theme_controller.dart';
 
-void main() {
+void main(){
   WidgetsFlutterBinding.ensureInitialized();
   setupDependencyInjection();
-  final themeController = injector.get<ThemeController>();
+  
+  runApp(const MyApp());
+}
 
-  runApp(
-    Watch(
-      (_) => MaterialApp.router(
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context){
+    final themeController = injector.get<ThemeController>();
+    
+    return Watch((context){
+      return MaterialApp.router(
         debugShowCheckedModeBanner: false,
         title: 'Injustice App',
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: themeController.themeMode.value,
-        //home: const MyHomePage(title: 'Flutter Demo Home Page'),
         routerConfig: AppRouter.router,
-      ),
-    ),
-  );
+        themeAnimationDuration: Duration.zero,
+      );
+    });
+  }
 }

@@ -45,6 +45,21 @@ final class SaveCharacterUseCaseImpl implements ISaveCharacterUseCase {
   }
 }
 
+final class UpdateCharacterUseCaseImpl implements IUpdateCharacterUseCase {
+  final ICharacterRepository _repository;
+
+  UpdateCharacterUseCaseImpl({required ICharacterRepository repository})
+    : _repository = repository;
+
+  @override
+  Future<CharacterResult> call(CharacterParams params) async {
+    await Future.delayed(
+      const Duration(seconds: 3),
+    );
+    return _repository.updateCharacter(params.character);
+  }
+}
+
 /// use case para deletar um personagem
 final class DeleteCharacterUseCaseImpl implements IDeleteCharacterUseCase {
   final ICharacterRepository _repository;
@@ -53,7 +68,20 @@ final class DeleteCharacterUseCaseImpl implements IDeleteCharacterUseCase {
     : _repository = repository;
 
   @override
-  Future<CharacterResult> call(CharacterIdParams params) {
+  Future<CharacterResult> call(CharacterIdParams params) async {
+    await Future.delayed(const Duration(seconds: 3));
     return _repository.deleteCharacter(params.id);
+  }
+}
+
+final class DeleteAllCharactersUseCaseImpl implements IDeleteAllCharactersUseCase {
+  final ICharacterRepository _repository;
+
+  DeleteAllCharactersUseCaseImpl({required ICharacterRepository repository}) : _repository = repository;
+
+  @override
+  Future<VoidResult> call(NoParams params) async {
+    await Future.delayed(const Duration(seconds: 3));
+    return _repository.deleteAllCharacters();
   }
 }

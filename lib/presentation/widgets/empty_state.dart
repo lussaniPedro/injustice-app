@@ -23,7 +23,7 @@ class EmptyState extends StatelessWidget {
         description = 'Adicione seu primeiro personagem usando o botão +',
         action = null;
 
-  factory EmptyState.error({VoidCallback? onRetry}) {
+  factory EmptyState.error({VoidCallback? onRetry}){
     return EmptyState(
       icon: Icons.error_outline,
       title: 'Algo deu errado',
@@ -31,6 +31,9 @@ class EmptyState extends StatelessWidget {
       action: onRetry != null
           ? ElevatedButton(
               onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(onRetry as BuildContext).colorScheme.secondary,
+              ),
               child: const Text('Tentar novamente'),
             )
           : null,
@@ -38,7 +41,7 @@ class EmptyState extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final colorScheme = Theme.of(context).colorScheme;
 
     return Center(
@@ -50,7 +53,14 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 72, color: colorScheme.outline),
+            Container(
+              padding: AppSpacing.paddingLg,
+              decoration: BoxDecoration(
+                color: colorScheme.secondary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 72, color: colorScheme.secondary),
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
               title,
@@ -65,7 +75,7 @@ class EmptyState extends StatelessWidget {
                 colorScheme.onSurfaceVariant,
               ),
             ),
-            if (action != null) ...[
+            if(action != null) ...[
               const SizedBox(height: AppSpacing.lg),
               action!,
             ],

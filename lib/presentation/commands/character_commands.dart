@@ -14,11 +14,26 @@ final class CreateCharacterCommand
 
   @override
   Future<CharacterResult> execute() async {
-    if (parameter == null) {
+    if(parameter == null){
       return Error(InputFailure('Parametro nulo para criar personagem.'));
     }
 
     return await _characterFacadeUseCases.saveCharacter(parameter!);
+  }
+}
+
+final class UpdateCharacterCommand extends ParameterizedCommand<Character, Failure, CharacterParams> {
+  final ICharacterFacadeUseCases _characterFacadeUseCases;
+
+  UpdateCharacterCommand(this._characterFacadeUseCases);
+
+  @override
+  Future<CharacterResult> execute() async {
+    if(parameter == null){
+      return Error(InputFailure('Parametro nulo para editar personagem.'));
+    }
+
+    return await _characterFacadeUseCases.updateCharacter(parameter!);
   }
 }
 
@@ -31,11 +46,22 @@ final class DeleteCharacterCommand
 
   @override
   Future<CharacterResult> execute() async {
-    if (parameter == null || parameter!.id.isEmpty) {
+    if(parameter == null || parameter!.id.isEmpty){
       return Error(InputFailure('Parametro nulo para deletar personagem.'));
     }
 
     return await _characterFacadeUseCases.deleteCharacter(parameter!);
+  }
+}
+
+final class DeleteAllCharactersCommand extends ParameterizedCommand<void, Failure, NoParams> {
+  final ICharacterFacadeUseCases _characterFacadeUseCases;
+
+  DeleteAllCharactersCommand(this._characterFacadeUseCases);
+
+  @override
+  Future<VoidResult> execute() async {
+    return await _characterFacadeUseCases.deleteAllCharacters(());
   }
 }
 
@@ -61,7 +87,7 @@ final class GetCharacterByIdCommand
 
   @override
   Future<CharacterResult> execute() async {
-    if (parameter == null || parameter!.id.isEmpty) {
+    if(parameter == null || parameter!.id.isEmpty){
       return Error(InputFailure('Parametro nulo para obter personagem por ID.'));
     }
 

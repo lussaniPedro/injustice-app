@@ -8,15 +8,15 @@ class AccountSummaryCard extends StatelessWidget {
   const AccountSummaryCard({super.key, required this.account});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final colors = Theme.of(context).colorScheme;
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
-      elevation: 3,
+      elevation: 0,
       clipBehavior: Clip.antiAlias,
       child: Container(
         decoration: BoxDecoration(
@@ -27,7 +27,7 @@ class AccountSummaryCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: AppSpacing.paddingMd,
+          padding: AppSpacing.paddingLg,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -36,23 +36,33 @@ class AccountSummaryCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       account.displayName,
-                      style: context.textStyles.headlineLarge
+                      style: context.textStyles.headlineSmall
                           ?.bold
                           .withColor(colors.onSecondary),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    'Lv. ${account.level}',
-                    style: context.textStyles.headlineSmall
-                        ?.bold
-                        .withColor(colors.onSecondary),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.onSecondary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                    child: Text(
+                      'Lv. ${account.level}',
+                      style: context.textStyles.labelLarge
+                          ?.bold
+                          .withColor(colors.onSecondary),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
+              const SizedBox(height: AppSpacing.md),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _StatItem(
                     icon: Icons.bolt,
@@ -64,7 +74,7 @@ class AccountSummaryCard extends StatelessWidget {
                     icon: Icons.diamond,
                     label: 'Gemas',
                     value: account.gems.toString(),
-                    color: Colors.lightBlueAccent,
+                    color: Colors.cyanAccent,
                   ),
                   _StatItem(
                     icon: Icons.attach_money,
@@ -96,18 +106,28 @@ class _StatItem extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final textColor = Theme.of(context).colorScheme.onSecondary;
 
     return Column(
       children: [
-        Icon(icon, size: 20, color: color),
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: textColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: Icon(icon, size: 20, color: color),
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
-          style: context.textStyles.labelLarge?.semiBold.withColor(textColor),
+          style: context.textStyles.titleMedium?.semiBold.withColor(textColor),
         ),
-        Text(label, style: context.textStyles.bodySmall?.withColor(textColor)),
+        Text(
+          label,
+          style: context.textStyles.bodySmall?.withColor(textColor.withValues(alpha: 0.8)),
+        ),
       ],
     );
   }

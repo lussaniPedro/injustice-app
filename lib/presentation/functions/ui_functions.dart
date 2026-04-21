@@ -67,7 +67,7 @@ Future<bool> confirmDialog(
             child: Text(
               cancelText,
               style: TextStyle(
-                color: theme.colorScheme.onPrimary,
+                color: theme.colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.bold,
               ),
             ),

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/theme/app_theme.dart';
 
 /// Widget personalizado para seleção numérica com botões de incremento/decremento
-///
+
 /// Permite:
 /// - Incremento e decremento com botões
 /// - Digitação manual
@@ -36,7 +36,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
   late FocusNode _focusNode;
 
   @override
-  void initState() {
+  void initState(){
     super.initState();
     _controller = TextEditingController(text: widget.value.toString());
     _focusNode = FocusNode();
@@ -44,69 +44,74 @@ class _NumericSpinnerState extends State<NumericSpinner> {
   }
 
   @override
-  void didUpdateWidget(NumericSpinner oldWidget) {
+  void didUpdateWidget(NumericSpinner oldWidget){
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value && !_focusNode.hasFocus) {
+    if(oldWidget.value != widget.value && !_focusNode.hasFocus){
       _controller.text = widget.value.toString();
     }
   }
 
   @override
-  void dispose() {
+  void dispose(){
     _focusNode.removeListener(_onFocusChange);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
-  void _onFocusChange() {
-    if (!_focusNode.hasFocus) {
+  void _onFocusChange(){
+    if(!_focusNode.hasFocus){
       _validateAndUpdate();
     }
   }
 
-  void _validateAndUpdate() {
+  void _validateAndUpdate(){
     final text = _controller.text.trim();
-    if (text.isEmpty) {
+
+    if(text.isEmpty){
       _controller.text = widget.value.toString();
       return;
     }
 
     final value = int.tryParse(text);
-    if (value == null) {
+
+    if(value == null){
       _controller.text = widget.value.toString();
       return;
     }
 
     final clampedValue = value.clamp(widget.minValue, widget.maxValue);
+
     _controller.text = clampedValue.toString();
-    if (clampedValue != widget.value) {
+    if(clampedValue != widget.value){
       widget.onChanged(clampedValue);
     }
   }
 
-  void _increment() {
+  void _increment(){
     final newValue = (widget.value + widget.step).clamp(
       widget.minValue,
       widget.maxValue,
     );
-    if (newValue != widget.value) {
+
+    if(newValue != widget.value){
       widget.onChanged(newValue);
     }
   }
 
-  void _decrement() {
+  void _decrement(){
     final newValue = (widget.value - widget.step).clamp(
       widget.minValue,
       widget.maxValue,
     );
-    if (newValue != widget.value) {
+
+    if(newValue != widget.value){
       widget.onChanged(newValue);
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     final canIncrement = widget.value < widget.maxValue;
     final canDecrement = widget.value > widget.minValue;
 
@@ -114,7 +119,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.label != null) ...[
+        if(widget.label != null) ...[
           Text(
             widget.label!,
             style: context.textStyles.labelLarge?.withColor(
@@ -125,12 +130,11 @@ class _NumericSpinnerState extends State<NumericSpinner> {
         ],
         Container(
           decoration: BoxDecoration(
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSecondary.withValues(alpha: 0.3),
-            ),
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(AppRadius.md),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -145,15 +149,19 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(AppRadius.md),
+                      ),
+                      color: canDecrement
+                          ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                    ),
                     child: Icon(
                       Icons.remove,
                       color: canDecrement
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onSecondary.withValues(alpha: 0.7)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     ),
                   ),
                 ),
@@ -176,7 +184,9 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                       vertical: AppSpacing.sm,
                     ),
                   ),
-                  style: context.textStyles.titleMedium?.bold,
+                  style: context.textStyles.titleMedium?.bold.withColor(
+                    Theme.of(context).colorScheme.onSurface,
+                  ),
                   onSubmitted: (_) => _validateAndUpdate(),
                 ),
               ),
@@ -191,15 +201,19 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(AppSpacing.md),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(AppRadius.md),
+                      ),
+                      color: canIncrement
+                          ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+                          : Colors.transparent,
+                    ),
                     child: Icon(
                       Icons.add,
                       color: canIncrement
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onSecondary.withValues(alpha: 0.7)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                          ? Theme.of(context).colorScheme.secondary
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
                     ),
                   ),
                 ),

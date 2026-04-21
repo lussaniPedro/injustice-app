@@ -3,7 +3,9 @@ import '../../domain/models/character_entity.dart';
 
 abstract interface class ICharacterLocalStorage {
   Future<CharacterResult> saveCharacter(Character character);
+  Future<CharacterResult> updateCharacter(Character character);
   Future<ListCharacterResult> getAllCharacters();
   Future<CharacterResult> getCharacterById(String id);
   Future<CharacterResult> deleteCharacter(String id);
+  Future<VoidResult> deleteAllCharacters();
 }
