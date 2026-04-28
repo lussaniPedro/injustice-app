@@ -90,16 +90,20 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(
-            'Bem-vindo ao\nInj2 Mobile',
-            style: context.textStyles.headlineMedium?.bold,
-            textAlign: TextAlign.center,
+          Center(
+            child: Text(
+              'Bem-vindo ao\nInj2 Mobile',
+              style: context.textStyles.headlineMedium?.bold,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            'Sua aventura épica em RPG está prestes a começar.',
-            style: context.textStyles.bodyLarge,
-            textAlign: TextAlign.center,
+          Center(
+            child: Text(
+              'Sua aventura épica em RPG está prestes a começar.',
+              style: context.textStyles.bodyLarge,
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: AppSpacing.xl),
           _InfoSection(
@@ -133,6 +137,7 @@ class _HomeViewState extends State<HomeView> {
                   vertical: AppSpacing.md,
                 ),
                 backgroundColor: colorScheme.secondary,
+                foregroundColor: colorScheme.onSecondaryContainer,
               ),
             ),
           ),
@@ -380,6 +385,8 @@ class _ModernResourceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: isGoldCard ? double.infinity : null,
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -389,10 +396,16 @@ class _ModernResourceCard extends StatelessWidget {
         border: Border.all(
           color: colorScheme.outline.withValues(alpha: 0.1),
         ),
-        boxShadow: [
+        boxShadow: isDark ? [
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.4),
+            blurRadius: 2,
+            spreadRadius: 1,
+          ),
+        ] : [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            blurRadius: 2,
             offset: const Offset(0, 2),
           ),
         ],

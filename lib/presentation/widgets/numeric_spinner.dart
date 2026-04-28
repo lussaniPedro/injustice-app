@@ -148,7 +148,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     left: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.horizontal(
                         left: Radius.circular(AppRadius.md),
@@ -169,7 +169,10 @@ class _NumericSpinnerState extends State<NumericSpinner> {
 
               // Campo de entrada
               Container(
-                width: 100,
+                constraints: const BoxConstraints(
+                  minWidth: 50,
+                  maxWidth: 70,
+                ),
                 padding: AppSpacing.horizontalSm,
                 child: TextField(
                   controller: _controller,
@@ -200,7 +203,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     right: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       borderRadius: const BorderRadius.horizontal(
                         right: Radius.circular(AppRadius.md),
