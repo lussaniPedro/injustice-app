@@ -1,5 +1,6 @@
 import 'package:auto_injector/auto_injector.dart';
 
+// Imports novos no topo do arquivo
 import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/account_repository_interface.dart';
 import '../../data/repositories/character_repository_impl.dart';
@@ -19,6 +20,18 @@ import '../../domain/usecases/character_usecases_interfaces.dart';
 import '../../presentation/controllers/account_viewmodel.dart';
 import '../../presentation/controllers/characters_view_model.dart';
 import '../theme/theme_controller.dart';
+import '../../authentication/data/repositories/auth_repository_impl.dart';
+import '../../authentication/data/repositories/i_auth_repository.dart';
+import '../../authentication/data/services/local/auth_local_session_manager.dart';
+import '../../authentication/data/services/local/i_local_session_store.dart';
+import '../../authentication/data/services/local/shared_pref_local_session_service.dart';
+import '../../authentication/data/services/remote/firebase_auth_service.dart';
+import '../../authentication/data/services/remote/i_auth_service.dart';
+import '../../authentication/domain/facades/auth_facade_impl.dart';
+import '../../authentication/domain/facades/i_auth_facade.dart';
+import '../../authentication/domain/usecases/auth_usecases_impl.dart';
+import '../../authentication/domain/usecases/i_auth_usecases.dart';
+import '../../authentication/presentation/controllers/auth_viewmodel.dart';
 
 final injector = AutoInjector();
 void setupDependencyInjection() {
@@ -56,6 +69,20 @@ void setupDependencyInjection() {
   injector.addSingleton<AccountViewModel>(AccountViewModel.new);
   // Character List viewmodel
   injector.addSingleton<CharactersViewModel>(CharactersViewModel.new);
+
+  // Sessão
+  injector.addSingleton<ILocalSessionStore>(SharedPrefLocalSessionService.new);
+  injector.addSingleton<AuthLocalSessionManager>(AuthLocalSessionManager.new);
+  injector.addSingleton<IAuthService>(FirebaseAuthService.new);
+  injector.addSingleton<IAuthRepository>(AuthRepositoryImpl.new);
+
+  injector.addSingleton<ISignInUseCase>(SignInUseCase.new);
+  injector.addSingleton<ISignUpUseCase>(SignUpUseCase.new);
+  injector.addSingleton<ISignInWithGoogleUseCase>(SignInWithGoogleUseCase.new);
+  injector.addSingleton<ISignOutUseCase>(SignOutUseCase.new);
+  injector.addSingleton<IAuthFacade>(AuthFacadeImpl.new);
+
+  injector.addSingleton<AuthViewModel>(AuthViewModel.new);
 
   injector.commit();
 }

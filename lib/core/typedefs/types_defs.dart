@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import '../failure/failure.dart';
+import '../../authentication/domain/models/auth_entities.dart';
 import '../../domain/models/account_entity.dart';
 import '../../domain/models/character_entity.dart';
 
 import '../patterns/result.dart';
+
+// typedefs de sessão
+typedef AuthSessionResult = Result<AuthSession, Failure>;
+typedef SignInParams = ({String email, String password});
+typedef SignUpParams = ({String? name, String email, String password});
 
 // typedefs para tipo Result
 typedef VoidResult = Result<void, Failure>;
