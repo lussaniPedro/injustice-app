@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
-import '../../domain/models/account_entity.dart';
+import '../../domain/models/profile_entity.dart';
 
-class AccountSummaryCard extends StatelessWidget {
-  final Account account;
+class ProfileSummaryCard extends StatelessWidget {
+  final Profile profile;
 
-  const AccountSummaryCard({super.key, required this.account});
+  const ProfileSummaryCard({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context){
@@ -35,7 +35,7 @@ class AccountSummaryCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      account.displayName,
+                      profile.displayName,
                       style: context.textStyles.headlineSmall
                           ?.bold
                           .withColor(colors.onSecondary),
@@ -52,7 +52,7 @@ class AccountSummaryCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                     child: Text(
-                      'Lv. ${account.level}',
+                      'Lv. ${profile.level}',
                       style: context.textStyles.labelLarge
                           ?.bold
                           .withColor(colors.onSecondary),
@@ -67,19 +67,19 @@ class AccountSummaryCard extends StatelessWidget {
                   _StatItem(
                     icon: Icons.bolt,
                     label: 'Energia',
-                    value: account.energy.toString(),
+                    value: profile.energy.toString(),
                     color: Colors.greenAccent,
                   ),
                   _StatItem(
                     icon: Icons.diamond,
                     label: 'Gemas',
-                    value: account.gems.toString(),
+                    value: profile.gems.toString(),
                     color: Colors.cyanAccent,
                   ),
                   _StatItem(
                     icon: Icons.attach_money,
                     label: 'Gold',
-                    value: account.gold.toStringAsFixed(0),
+                    value: profile.gold.toStringAsFixed(0),
                     color: Colors.amberAccent,
                   ),
                 ],

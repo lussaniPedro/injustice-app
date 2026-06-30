@@ -7,7 +7,7 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 class CharactersCommandsViewModel {
   final CharactersStateViewmodel state;
-  final GetAllCharactersCommand _getAccountCommand;
+  final GetAllCharactersCommand _getProfileCommand;
   final CreateCharacterCommand _createCharacterCommand;
   final UpdateCharacterCommand _updateCharacterCommand;
   final DeleteCharacterCommand _deleteCharacterCommand;
@@ -15,12 +15,12 @@ class CharactersCommandsViewModel {
 
   CharactersCommandsViewModel({
     required this.state,
-    required GetAllCharactersCommand getAccountCommand,
+    required GetAllCharactersCommand getProfileCommand,
     required CreateCharacterCommand createCharacterCommand,
     required UpdateCharacterCommand updateCharacterCommand,
     required DeleteCharacterCommand deleteCharacterCommand,
     required DeleteAllCharactersCommand deleteAllCharactersCommand,
-  }) : _getAccountCommand = getAccountCommand,
+  }) : _getProfileCommand = getProfileCommand,
        _createCharacterCommand = createCharacterCommand,
        _updateCharacterCommand = updateCharacterCommand,
        _deleteCharacterCommand = deleteCharacterCommand,
@@ -36,7 +36,7 @@ class CharactersCommandsViewModel {
   // ========================================================
   //   GETTERS PARA WIDGETS USAREM DIRETAMENTE OS COMANDOS
   // ========================================================
-  GetAllCharactersCommand get getAllCharactersCommand => _getAccountCommand;
+  GetAllCharactersCommand get getAllCharactersCommand => _getProfileCommand;
   CreateCharacterCommand get createCharacterCommand => _createCharacterCommand;
   UpdateCharacterCommand get updateCharacterCommand => _updateCharacterCommand;
   DeleteCharacterCommand get deleteCharacterCommand => _deleteCharacterCommand;
@@ -81,7 +81,7 @@ class CharactersCommandsViewModel {
   /// Buscar todos os personagens
   void _observeGetAllCharacters(){
     _observeCommand<List<Character>>(
-      _getAccountCommand,
+      _getProfileCommand,
       onSuccess: (characters){
         state.clearMessage(); // Limpa mensagens anteriores
         state.state.value = characters;
@@ -171,7 +171,7 @@ class CharactersCommandsViewModel {
   /// buscca personagens e atualiza o estado
   Future<void> fetchCharacters() async {
     state.clearMessage(); // Limpa mensagens anteriores
-    await _getAccountCommand.executeWith(());
+    await _getProfileCommand.executeWith(());
   }
 
   /// adiciona personagem e atualiza o estado

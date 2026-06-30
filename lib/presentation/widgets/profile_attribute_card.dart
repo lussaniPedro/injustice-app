@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import 'numeric_spinner.dart';
 
-class AccountAttributeCard extends StatelessWidget {
+class ProfileAttributeCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
@@ -12,7 +12,7 @@ class AccountAttributeCard extends StatelessWidget {
   final int value;
   final ValueChanged<int> onChanged;
 
-  const AccountAttributeCard({
+  const ProfileAttributeCard({
     super.key,
     required this.icon,
     required this.iconColor,

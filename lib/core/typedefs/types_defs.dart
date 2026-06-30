@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../failure/failure.dart';
 import '../../authentication/domain/models/auth_entities.dart';
-import '../../domain/models/account_entity.dart';
+import '../../domain/models/profile_entity.dart';
 import '../../domain/models/character_entity.dart';
 
 import '../patterns/result.dart';
@@ -13,16 +13,18 @@ typedef SignUpParams = ({String? name, String email, String password});
 
 // typedefs para tipo Result
 typedef VoidResult = Result<void, Failure>;
-typedef AccountResult = Result<Account, Failure>;
+typedef ListProfileResult = Result<List<Profile>, Failure>;
+typedef ProfileResult = Result<Profile, Failure>;
 typedef CharacterResult = Result<Character,Failure>;
 typedef ListCharacterResult = Result<List<Character>, Failure>;
 
 // typedfs para parâmetros
-typedef AccountParams = ({Account account});
+typedef ProfileIdParams = ({String id});
+typedef ProfileParams = ({Profile profile});
 
 /// tipos usadoos Conta de Usuario
 typedef NoParams = ();
-typedef AccountNameParams = ({String accountName});
+typedef ProfileNameParams = ({String profileName});
 /// tipos usados para Personagem
 typedef CharacterIdParams = ({String id});
 typedef CharacterParams = ({Character character});

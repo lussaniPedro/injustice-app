@@ -9,7 +9,7 @@ class CharactersViewModel {
   /// estado principal da tela, que contém a lista de personagens
   late final CharactersStateViewmodel _state;
 
-  /// Getter público para acessar o estado de Account
+  /// Getter público para acessar o estado de Profile
   CharactersStateViewmodel get charactersState => _state;
 
   /// dispara os commands e effects e observa as mudanças de estado
@@ -19,7 +19,7 @@ class CharactersViewModel {
     // dispara os commands e effects
     commands = CharactersCommandsViewModel(
       state: _state,
-      getAccountCommand: GetAllCharactersCommand(facade),
+      getProfileCommand: GetAllCharactersCommand(facade),
       createCharacterCommand: CreateCharacterCommand(facade),
       updateCharacterCommand: UpdateCharacterCommand(facade),
       deleteCharacterCommand: DeleteCharacterCommand(facade),

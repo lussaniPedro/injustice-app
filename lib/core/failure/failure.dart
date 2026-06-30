@@ -8,6 +8,11 @@ sealed class Failure implements Exception {
   String toString() => '$runtimeType: $msg!!!';
 }
 
+class ProfileLimitReachedFailure extends Failure {
+  ProfileLimitReachedFailure([String? msg])
+      : super(msg ?? 'Você atingiu o limite de perfis permitidos.');
+}
+
 class DefaultFailure extends Failure {
   DefaultFailure([String? msg]) : super(msg ?? AppMessages.error.defaultError);
 }

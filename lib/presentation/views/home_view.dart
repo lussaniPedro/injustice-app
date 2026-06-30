@@ -6,9 +6,10 @@ import 'package:signals_flutter/signals_flutter.dart';
 import '../../core/di/dependency_injection.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/theme/theme_controller.dart';
-import '../controllers/account_viewmodel.dart';
+import '../../domain/models/profile_entity.dart';
+import '../controllers/profile_session_state.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/theme_toggle_button.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -18,125 +19,66 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  late final AccountViewModel _vmAccount;
-  late final ThemeController _themeController;
+  late final ProfileSessionState _profileSession;
 
   @override
   void initState(){
     super.initState();
-    _vmAccount = injector.get<AccountViewModel>();
-    _themeController = injector.get<ThemeController>();
-    _vmAccount.commands.fetchAccount();
+    _profileSession = injector.get<ProfileSessionState>();
   }
 
   @override
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inj2 Mobile - Player Acc'),
-        actions: [
-          Watch((context){
-            return IconButton(
-              icon: Icon(
-                _themeController.isLightMode.value
-                    ? Icons.dark_mode
-                    : Icons.light_mode,
-              ),
-              onPressed: (){
-                _themeController.toggleTheme();
-              },
-              tooltip: _themeController.isLightMode.value
-                  ? 'Modo Escuro'
-                  : 'Modo Claro',
-            );
-          }),
-        ],
+        title: const Text('Injustice Mobile'),
+        actions: const [ThemeToggleButton()],
       ),
       drawer: AppDrawer(),
       body: Watch((context){
-       
-        if(_vmAccount.commands.getAccountCommand.isExecuting.value){
+        final profile = _profileSession.activeProfile.value;
+
+        if(profile == null){
           return const Center(child: CircularProgressIndicator());
         }
-       
-        if(!_vmAccount.accountState.hasAccount.value){
-          return _buildAboutContent(context);
-        }
 
-        return _accountHeaderCard(context);
+        return _profileHeaderCard(context, profile);
       }),
     );
   }
 
-  Widget _buildAboutContent(BuildContext context){
+  Widget _profileHeaderCard(BuildContext context, Profile profile){
     final colorScheme = Theme.of(context).colorScheme;
+
     return SingleChildScrollView(
-      padding: AppSpacing.paddingLg,
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              padding: AppSpacing.paddingLg,
-              decoration: BoxDecoration(
-                color: colorScheme.secondary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.videogame_asset,
-                size: 80,
-                color: colorScheme.secondary,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Center(
-            child: Text(
-              'Bem-vindo ao\nInj2 Mobile',
-              style: context.textStyles.headlineMedium?.bold,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Center(
-            child: Text(
-              'Sua aventura épica em RPG está prestes a começar.',
-              style: context.textStyles.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-          ),
+          _buildProfileHeader(profile, colorScheme),
           const SizedBox(height: AppSpacing.xl),
-          _InfoSection(
-            titulo: 'Descrição',
-            conteudo:
-                'Um jogo épico de RPG onde você controla heróis poderosos, '
-                'explora mundos fantásticos e enfrenta desafios emocionantes. '
-                'Personalize seus personagens, desenvolva habilidades únicas e '
-                'embarque em uma jornada inesquecível.',
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          _InfoSection(
-            titulo: 'Recursos',
-            conteudo:
-                '• Sistema de combate estratégico\n'
-                '• Mais de 50 personagens únicos\n'
-                '• Mundos vastos para explorar\n'
-                '• Sistema de progressão profundo\n'
-                '• Modo multiplayer cooperativo\n'
-                '• Eventos semanais exclusivos',
-          ),
+
+          _buildResourcesSection(profile, colorScheme),
           const SizedBox(height: AppSpacing.xl),
+
+          _buildProfileInfoSection(profile, colorScheme),
+          const SizedBox(height: AppSpacing.xl),
+
           Center(
             child: ElevatedButton.icon(
-              onPressed: () => context.goNamed(AppRouteNames.accountCreate),
-              icon: const Icon(Icons.person_add),
-              label: const Text('Criar Conta Agora'),
+              onPressed: () => context.goNamed(
+                AppRouteNames.characters,
+                extra: profile,
+              ),
+              icon: const Icon(Icons.people),
+              label: const Text('Ver Meus Personagens'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xl,
                   vertical: AppSpacing.md,
                 ),
-                backgroundColor: colorScheme.secondary,
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: colorScheme.secondaryContainer,
                 foregroundColor: colorScheme.onSecondaryContainer,
               ),
             ),
@@ -146,62 +88,13 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _accountHeaderCard(BuildContext context){
-    final account = _vmAccount.accountState.state.value!;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return RefreshIndicator(
-      onRefresh: () async => await _vmAccount.commands.fetchAccount(),
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProfileHeader(account, colorScheme),
-            const SizedBox(height: AppSpacing.xl),
-
-            _buildResourcesSection(account, colorScheme),
-            const SizedBox(height: AppSpacing.xl),
-
-            _buildAccountInfoSection(account, colorScheme),
-            const SizedBox(height: AppSpacing.xl),
-
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () => context.goNamed(
-                  AppRouteNames.characters,
-                  extra: account,
-                ),
-                icon: const Icon(Icons.people),
-                label: const Text('Ver Meus Personagens'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xl,
-                    vertical: AppSpacing.md,
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: colorScheme.secondaryContainer,
-                  foregroundColor: colorScheme.onSecondaryContainer,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileHeader(dynamic account, ColorScheme colorScheme){
+  Widget _buildProfileHeader(Profile profile, ColorScheme colorScheme){
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            colorScheme.secondary,
-            colorScheme.primary,
-          ],
+          colors: [colorScheme.secondary, colorScheme.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -221,16 +114,13 @@ class _HomeViewState extends State<HomeView> {
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 3,
-                  ),
+                  border: Border.all(color: Colors.white, width: 3),
                 ),
                 child: CircleAvatar(
                   radius: 35,
                   backgroundColor: Colors.white.withValues(alpha: 0.2),
                   child: Text(
-                    account.displayName[0].toUpperCase(),
+                    profile.displayName[0].toUpperCase(),
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -245,7 +135,7 @@ class _HomeViewState extends State<HomeView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      account.displayName,
+                      profile.displayName,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -255,7 +145,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      account.email,
+                      profile.email,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.8),
@@ -283,11 +173,8 @@ class _HomeViewState extends State<HomeView> {
                 const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  'Nível ${account.level}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Nível ${profile.level}',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -297,32 +184,29 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildResourcesSection(dynamic account, ColorScheme colorScheme){
+  Widget _buildResourcesSection(Profile profile, ColorScheme colorScheme){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recursos',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
+        const Text('Recursos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
         const SizedBox(height: AppSpacing.md),
         Row(
           children: [
             Expanded(
-              child: _ModernResourceCard(
+              child: _ResourceCard(
                 icon: Icons.diamond,
                 label: 'Gemas',
-                value: account.gems.toString(),
+                value: profile.gems.toString(),
                 color: Colors.cyanAccent,
                 colorScheme: colorScheme,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: _ModernResourceCard(
+              child: _ResourceCard(
                 icon: Icons.flash_on,
                 label: 'Energia',
-                value: account.energy.toString(),
+                value: profile.energy.toString(),
                 color: Colors.greenAccent,
                 colorScheme: colorScheme,
               ),
@@ -330,14 +214,14 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        _ModernResourceCard(
+        _ResourceCard(
           icon: Icons.monetization_on,
           label: 'Gold',
           value: NumberFormat.currency(
             locale: 'pt_BR',
             symbol: r'$ ',
             decimalDigits: 2,
-          ).format(account.gold),
+          ).format(profile.gold),
           color: Colors.amberAccent,
           isGoldCard: true,
           colorScheme: colorScheme,
@@ -346,27 +230,53 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildAccountInfoSection(dynamic account, ColorScheme colorScheme){
+  Widget _buildProfileInfoSection(Profile profile, ColorScheme colorScheme){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Informações da Conta',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
+        const Text('Informações do Perfil', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
         const SizedBox(height: AppSpacing.md),
-        _ModernInfoCard(
-          icon: Icons.calendar_today,
-          label: 'Data de Criação',
-          value: DateFormat('dd/MM/yyyy').format(account.createdAt),
-          colorScheme: colorScheme,
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+            border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: colorScheme.secondary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Icon(Icons.calendar_today, color: colorScheme.secondary, size: 24),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Data de Criação',
+                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(profile.createdAt),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
-class _ModernResourceCard extends StatelessWidget {
+class _ResourceCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
@@ -374,7 +284,7 @@ class _ModernResourceCard extends StatelessWidget {
   final bool isGoldCard;
   final ColorScheme colorScheme;
 
-  const _ModernResourceCard({
+  const _ResourceCard({
     required this.icon,
     required this.label,
     required this.value,
@@ -393,22 +303,10 @@ class _ModernResourceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.1),
-        ),
-        boxShadow: isDark ? [
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.4),
-            blurRadius: 2,
-            spreadRadius: 1,
-          ),
-        ] : [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 2,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        boxShadow: isDark
+            ? [BoxShadow(color: Colors.white.withValues(alpha: 0.4), blurRadius: 2, spreadRadius: 1)]
+            : [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2, offset: const Offset(0, 2))],
       ),
       child: Row(
         mainAxisAlignment: isGoldCard ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
@@ -418,13 +316,7 @@ class _ModernResourceCard extends StatelessWidget {
               children: [
                 Icon(icon, color: color, size: 28),
                 const SizedBox(width: AppSpacing.md),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               ],
             )
           else
@@ -432,13 +324,7 @@ class _ModernResourceCard extends StatelessWidget {
               children: [
                 Icon(icon, color: color, size: 32),
                 const SizedBox(height: AppSpacing.sm),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
               ],
             ),
           Text(
@@ -451,111 +337,6 @@ class _ModernResourceCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ModernInfoCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final ColorScheme colorScheme;
-
-  const _ModernInfoCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context){
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: colorScheme.secondary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
-            child: Icon(icon, color: colorScheme.secondary, size: 24),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoSection extends StatelessWidget {
-  final String titulo;
-  final String conteudo;
-
-  const _InfoSection({required this.titulo, required this.conteudo});
-
-  @override
-  Widget build(BuildContext context){
-    final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          titulo,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
-          child: Text(
-            conteudo,
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-              height: 1.5,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

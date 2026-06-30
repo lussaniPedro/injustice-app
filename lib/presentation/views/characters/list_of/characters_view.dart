@@ -3,15 +3,15 @@ import 'widgets/characters_app_bar.dart';
 import 'widgets/characters_body.dart';
 import 'widgets/characters_floating_button.dart';
 import '../../../../core/di/dependency_injection.dart';
-import '../../../../domain/models/account_entity.dart';
+import '../../../../domain/models/profile_entity.dart';
 import '../../../controllers/characters_view_model.dart';
 import '../../../widgets/app_drawer.dart';
 
 /// Página de listagem de personagens
 class CharactersView extends StatefulWidget {
-  final Account account;
+  final Profile profile;
 
-  const CharactersView({super.key, required this.account});
+  const CharactersView({super.key, required this.profile});
 
   @override
   State<CharactersView> createState() => _CharactersViewState();
@@ -19,7 +19,7 @@ class CharactersView extends StatefulWidget {
 
 class _CharactersViewState extends State<CharactersView> {
   late final CharactersViewModel _viewModel;
-  Account get account => widget.account;
+  Profile get profile => widget.profile;
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _CharactersViewState extends State<CharactersView> {
     return Scaffold(
       appBar: CharactersAppBar(state: _viewModel.charactersState, commands: _viewModel.commands,),
       drawer: AppDrawer(),
-      body: CharactersBody(account: account, viewModel: _viewModel),
+      body: CharactersBody(profile: profile, viewModel: _viewModel),
       floatingActionButton: CharactersFab(viewModel: _viewModel),
     );
   }

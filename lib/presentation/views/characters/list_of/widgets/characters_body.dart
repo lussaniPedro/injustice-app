@@ -3,12 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:injustice_app/presentation/functions/ui_functions.dart';
 import '../../../../../core/routes/app_routes.dart';
 import '../../../../../core/theme/app_theme.dart';
-import '../../../../../domain/models/account_entity.dart';
+import '../../../../../domain/models/profile_entity.dart';
 import '../../../../../domain/models/character_entity.dart';
 import '../../../../../domain/models/extensions/character_ui.dart';
 import '../../../../controllers/characters_state_viewmodel.dart';
 import '../../../../controllers/characters_view_model.dart';
-import '../../../../widgets/account_summary_card.dart';
+import '../../../../widgets/profile_summary_card.dart';
 import '../../../../widgets/empty_state.dart';
 import '../../../../widgets/loading_indicator.dart';
 import '../../../../widgets/star_rating.dart';
@@ -16,12 +16,12 @@ import 'package:signals_flutter/signals_flutter.dart';
 
 class CharactersBody extends StatelessWidget {
   final CharactersViewModel viewModel;
-  final Account account;
+  final Profile profile;
 
   const CharactersBody({
     super.key,
     required this.viewModel,
-    required this.account,
+    required this.profile,
   });
 
   @override
@@ -43,7 +43,7 @@ class CharactersBody extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: AppSpacing.paddingMd,
-                child: AccountSummaryCard(account: account),
+                child: ProfileSummaryCard(profile: profile),
               ),
             ),
 

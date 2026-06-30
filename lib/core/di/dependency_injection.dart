@@ -1,23 +1,24 @@
 import 'package:auto_injector/auto_injector.dart';
+import 'package:injustice_app/presentation/controllers/profile_session_state.dart';
 
 // Imports novos no topo do arquivo
-import '../../data/repositories/account_repository_impl.dart';
-import '../../data/repositories/account_repository_interface.dart';
+import '../../data/repositories/profile_repository_impl.dart';
+import '../../data/repositories/profile_repository_interface.dart';
 import '../../data/repositories/character_repository_impl.dart';
 import '../../data/repositories/character_repository_interface.dart';
-import '../../data/services/account_local_storage_interface.dart';
-import '../../data/services/account_shared_preferences_impl.dart';
+import '../../data/services/profile_local_storage_interface.dart';
 import '../../data/services/character_local_storage_interface.dart';
-import '../../data/services/character_shared_preferences_impl.dart';
-import '../../domain/facades/account_facade_usecases_impl.dart';
-import '../../domain/facades/account_facade_usecases_interface.dart';
+import '../../data/services/profile_firestore_service.dart';
+import '../../data/services/character_firestore_service.dart';
+import '../../domain/facades/profile_facade_usecases_impl.dart';
+import '../../domain/facades/profile_facade_usecases_interface.dart';
 import '../../domain/facades/character_facade_usecases_impl.dart';
 import '../../domain/facades/character_facade_usecases_interface.dart';
-import '../../domain/usecases/account_usecases_impl.dart';
-import '../../domain/usecases/account_usecases_interfaces.dart';
+import '../../domain/usecases/profile_usecases_impl.dart';
+import '../../domain/usecases/profile_usecases_interfaces.dart';
 import '../../domain/usecases/character_usecases_impl.dart';
 import '../../domain/usecases/character_usecases_interfaces.dart';
-import '../../presentation/controllers/account_viewmodel.dart';
+import '../../presentation/controllers/profiles_viewmodel.dart';
 import '../../presentation/controllers/characters_view_model.dart';
 import '../theme/theme_controller.dart';
 import '../../authentication/data/repositories/auth_repository_impl.dart';
@@ -39,20 +40,23 @@ void setupDependencyInjection() {
   // Regristração de dependências do Core
   injector.addSingleton<ThemeController>(ThemeController.new);
 
-  // Regristração de dependências para Account
+  // Regristração de dependências para Profile
   // Repositories e servicos
-  injector.addSingleton<IAccountLocalStorage>(AccountSharedPreferencesService.new);
-  injector.addSingleton<IAccountRepository>(AccountRepositoryImpl.new);
+  injector.addSingleton<IProfileLocalStorage>(ProfileFirestoreService.new);
+  injector.addSingleton<IProfileRepository>(ProfileRepositoryImpl.new);
   // Use Cases e Facades
-  injector.addSingleton<IAccountFacadeUseCases>(AccountFacadeUsecasesImpl.new);
-  injector.addSingleton<IGetAccountUseCase>(GetAccountUseCaseImpl.new);
-  injector.addSingleton<ISaveAccountUseCase>(SaveAccountUseCaseImpl.new);
-  injector.addSingleton<IDeleteAccountUseCase>(DeleteAccountUseCaseImpl.new);
-  injector.addSingleton<IUpdateAccountUseCase>(UpdateAccountUseCaseImpl.new);
+  injector.addSingleton<IProfileFacadeUseCases>(ProfileFacadeUsecasesImpl.new);
+  injector.addSingleton<IGetAllProfilesUseCase>(GetAllProfilesUseCaseImpl.new);
+  injector.addSingleton<IGetProfileByIdUseCase>(GetProfileByIdUseCaseImpl.new);
+  injector.addSingleton<ISaveProfileUseCase>(SaveProfileUseCaseImpl.new);
+  injector.addSingleton<IDeleteProfileUseCase>(DeleteProfileUseCaseImpl.new);
+  injector.addSingleton<IUpdateProfileUseCase>(UpdateProfileUseCaseImpl.new);
+
+  injector.addSingleton<ProfileSessionState>(ProfileSessionState.new);
   
   // Regristração de dependências para Character
   // Repositories e serviços
-  injector.addSingleton<ICharacterLocalStorage>(CharacterSharedPreferencesService.new);
+  injector.addSingleton<ICharacterLocalStorage>(CharacterFirestoreService.new);
   injector.addSingleton<ICharacterRepository>(CharacterRepositoryImpl.new);
   // Use Cases e Facades
   injector.addSingleton<ICharacterFacadeUseCases>(CharacterFacadeUseCasesImpl.new);
@@ -65,8 +69,8 @@ void setupDependencyInjection() {
   
 
   // viewmodes
-  // Account viewmodes
-  injector.addSingleton<AccountViewModel>(AccountViewModel.new);
+  // Profile viewmodes
+  injector.addSingleton<ProfilesViewModel>(ProfilesViewModel.new);
   // Character List viewmodel
   injector.addSingleton<CharactersViewModel>(CharactersViewModel.new);
 

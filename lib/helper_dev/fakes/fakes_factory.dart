@@ -1,17 +1,18 @@
 import 'package:faker_dart/faker_dart.dart';
-import '../../domain/models/account_entity.dart';
+import '../../domain/models/profile_entity.dart';
 import '../../domain/models/character_entity.dart';
 
 abstract class FakeFactory {
   static final Faker _faker = Faker.instance..setLocale(FakerLocaleType.pt_PT);
 
   // ======================
-  // Account
+  // Profile
   // ======================
-  static Account account() {
+  static Profile profile() {
     final now = DateTime.now();
 
-    return Account(
+    return Profile(
+      id: _faker.datatype.uuid(),
       name: _faker.name.fullName(),
       email: _faker.internet.email(),
       displayName: _faker.name.firstName(),

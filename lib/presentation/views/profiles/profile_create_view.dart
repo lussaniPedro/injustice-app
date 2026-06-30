@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
-import '../../core/di/dependency_injection.dart';
-import '../../core/theme/app_theme.dart';
-import '../../core/typedefs/types_defs.dart';
-import '../../core/validators/email_str_validator.dart';
-import '../../core/validators/empty_str_validator.dart';
-import '../../domain/models/account_entity.dart';
-import '../controllers/account_state_viewmodel.dart';
-import '../controllers/account_viewmodel.dart';
-import '../functions/ui_functions.dart';
-import '../widgets/account_attribute_card.dart';
-import '../widgets/app_drawer.dart';
-import '../widgets/date_wheel_picker.dart';
-import '../widgets/input_text_field.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../../../core/di/dependency_injection.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/typedefs/types_defs.dart';
+import '../../../../core/validators/email_str_validator.dart';
+import '../../../../core/validators/empty_str_validator.dart';
+import '../../../../domain/models/profile_entity.dart';
+import '../../controllers/profiles_state_viewmodel.dart';
+import '../../controllers/profiles_viewmodel.dart';
+import '../../functions/ui_functions.dart';
+import '../../widgets/app_drawer.dart';
+import '../../widgets/date_wheel_picker.dart';
+import '../../widgets/input_text_field.dart';
+import '../../widgets/profile_attribute_card.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-/// Página de cadastro de conta
-class AccountCreateView extends StatefulWidget {
-  const AccountCreateView({super.key});
+/// Página de criação/edição de perfil
+class ProfileCreateView extends StatefulWidget {
+  final Profile? profile;
+
+  const ProfileCreateView({super.key, required this.profile});
 
   @override
-  State<AccountCreateView> createState() => _AccountCreateViewState();
+  State<ProfileCreateView> createState() => _ProfileCreateViewState();
 }
 
-class _AccountCreateViewState extends State<AccountCreateView> {
-  late final AccountViewModel _vmAccount;
-  late final void Function() _disposeAccountEffect;
-  late final void Function() _disposeSuccessEffect;
+class _ProfileCreateViewState extends State<ProfileCreateView> {
+  late final ProfilesViewModel _vmProfiles;
   late final void Function() _disposeErrorEffect;
+  late final void Function() _disposeSuccessEffect;
 
   final _formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
 
-  late final AccountFormFieldsController _formFields;
+  late final ProfileFormFieldsController _formFields;
+
+  bool get _isEditing => widget.profile != null;
 
   DateTime _createdAt = DateTime.now();
   int _level = 1;
@@ -42,24 +48,18 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   @override
   void initState(){
     super.initState();
-    _formFields = AccountFormFieldsController();
+    _formFields = ProfileFormFieldsController();
 
-    _vmAccount = injector.get<AccountViewModel>();
-    _vmAccount.accountState.clearMessage();
-    _vmAccount.accountState.clearSuccessEvent();
+    _vmProfiles = injector.get<ProfilesViewModel>();
+    _vmProfiles.profilesState.clearMessage();
+    _vmProfiles.profilesState.clearSuccessEvent();
 
-    _disposeAccountEffect = effect((){
-      final account = _vmAccount.accountState.state.value;
-
-      if(account != null){
-        _preencherCampos(account);
-      } else {
-        _limparCampos();
-      }
-    });
+    if(_isEditing){
+      _preencherCampos(widget.profile!);
+    }
 
     _disposeErrorEffect = effect((){
-      final errorMessage = _vmAccount.accountState.message.value;
+      final errorMessage = _vmProfiles.profilesState.message.value;
 
       if(errorMessage != null && mounted){
         WidgetsBinding.instance.addPostFrameCallback((_){
@@ -67,13 +67,13 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
           showSnackBar(context, errorMessage, backgroundColor: Colors.red);
 
-          _vmAccount.accountState.clearMessage();
+          _vmProfiles.profilesState.clearMessage();
         });
       }
     });
 
     _disposeSuccessEffect = effect((){
-      final event = _vmAccount.accountState.successEvent.value;
+      final event = _vmProfiles.profilesState.successEvent.value;
 
       if(event != null && mounted){
         WidgetsBinding.instance.addPostFrameCallback((_){
@@ -83,22 +83,24 @@ class _AccountCreateViewState extends State<AccountCreateView> {
           Color color;
 
           switch (event){
-            case AccountSuccessEvent.created:
-              message = 'Conta criada com sucesso!';
+            case ProfileSuccessEvent.created:
+              message = 'Perfil criado com sucesso!';
               color = Colors.green;
 
-            case AccountSuccessEvent.updated:
-              message = 'Conta atualizada com sucesso!';
+            case ProfileSuccessEvent.updated:
+              message = 'Perfil atualizado com sucesso!';
               color = Colors.green;
 
-            case AccountSuccessEvent.deleted:
-              message = 'Conta excluída com sucesso!';
+            case ProfileSuccessEvent.deleted:
+              message = 'Perfil excluído com sucesso!';
               color = Colors.red.shade400;
           }
 
           showSnackBar(context, message, backgroundColor: color);
 
-          _vmAccount.accountState.clearSuccessEvent();
+          _vmProfiles.profilesState.clearSuccessEvent();
+
+          if(mounted) context.pop();
         });
       }
     });
@@ -106,48 +108,29 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
   @override
   void dispose(){
-    _disposeAccountEffect();
-    _disposeSuccessEffect();
     _disposeErrorEffect();
+    _disposeSuccessEffect();
 
     _scrollController.dispose();
-
     _formFields.dispose();
 
     super.dispose();
   }
 
-  void _preencherCampos(Account account){
-    _formFields.email.controller.text = account.email;
-    _formFields.name.controller.text = account.name;
-    _formFields.displayName.controller.text = account.displayName;
+  void _preencherCampos(Profile profile){
+    _formFields.email.controller.text = profile.email;
+    _formFields.name.controller.text = profile.name;
+    _formFields.displayName.controller.text = profile.displayName;
 
-    _createdAt = account.createdAt;
-    _level = account.level;
-    _gold = account.gold;
-    _gems = account.gems;
-    _energy = account.energy;
-
-    setState((){});
-  }
-
-  void _limparCampos(){
-    _formKey.currentState?.reset();
-
-    _createdAt = DateTime.now();
-    _level = 1;
-    _gold = 0;
-    _gems = 0;
-    _energy = 1;
-
-    setState((){});
+    _createdAt = profile.createdAt;
+    _level = profile.level;
+    _gold = profile.gold;
+    _gems = profile.gems;
+    _energy = profile.energy;
   }
 
   void _resetFormView(){
-    // Remove foco de qualquer TextField
     FocusScope.of(context).unfocus();
-
-    // Rola para o topo
     _scrollController.animateTo(
       0,
       duration: const Duration(milliseconds: 300),
@@ -183,52 +166,55 @@ class _AccountCreateViewState extends State<AccountCreateView> {
     return valid;
   }
 
-  Future<void> _salvarConta() async {
+  Future<void> _salvarPerfil() async {
     if(!_validateForm()) return;
 
-    Account newAccount = Account(
+    final now = DateTime.now();
+
+    final newProfile = Profile(
+      id: _isEditing ? widget.profile!.id : const Uuid().v4(),
       email: _formFields.email.controller.text.trim(),
       name: _formFields.name.controller.text.trim(),
       displayName: _formFields.displayName.controller.text.trim(),
-      createdAt: _createdAt,
+      createdAt: _isEditing ? widget.profile!.createdAt : _createdAt,
+      updatedAt: now,
       level: _level,
       gold: _gold,
       gems: _gems,
       energy: _energy,
-      updatedAt: _createdAt,
     );
 
-    if(_vmAccount.accountState.hasAccount.value){
-      await _vmAccount.commands.updateAccount(newAccount);
+    if(_isEditing){
+      await _vmProfiles.commands.updateProfile(newProfile);
     } else {
-      await _vmAccount.commands.saveAccount(newAccount);
+      await _vmProfiles.commands.createProfile(newProfile);
     }
+
     _resetFormView();
   }
 
-  Future<void> _excluirConta() async {
+  Future<void> _excluirPerfil() async {
+    if(!_isEditing) return;
+
     final confirm = await confirmDialog(
       context,
-      title: 'Excluir conta',
+      title: 'Excluir perfil',
       message:
-          'Tem certeza que deseja excluir esta conta?\n\n'
+          'Tem certeza que deseja excluir o perfil "${widget.profile!.displayName}"?\n\n'
           'Esta ação não poderá ser desfeita.',
       confirmText: 'EXCLUIR',
     );
 
     if(!confirm) return;
 
-    await _vmAccount.commands.deleteAccount();
-    _formKey.currentState?.reset();
-    _formFields.clear();
-    _resetFormView();
+    await _vmProfiles.commands.deleteProfile(widget.profile!.id);
   }
 
   @override
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Watch((_) => Text(_vmAccount.accountState.labelEditMode.value)),
+        title: Text(_isEditing ? 'Editar Perfil' : 'Criar Perfil'),
       ),
       drawer: AppDrawer(),
       body: GestureDetector(
@@ -262,7 +248,9 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'Preencha os dados abaixo para criar sua conta',
+                  _isEditing
+                      ? 'Atualize os dados do perfil'
+                      : 'Preencha os dados abaixo para criar seu perfil',
                   style: context.textStyles.bodyMedium?.withColor(
                     Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -270,7 +258,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.xl),
 
-                // Email
                 InputTextField(
                   fieldKey: _formFields.email.key,
                   controller: _formFields.email.controller,
@@ -286,7 +273,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Nome
                 InputTextField(
                   fieldKey: _formFields.name.key,
                   controller: _formFields.name.controller,
@@ -299,7 +285,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                //displayName
                 InputTextField(
                   label: 'Apelido',
                   fieldKey: _formFields.displayName.key,
@@ -312,7 +297,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Data de Criação
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
@@ -329,8 +313,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Level
-                AccountAttributeCard(
+                ProfileAttributeCard(
                   icon: Icons.star,
                   iconColor: Theme.of(context).colorScheme.secondary,
                   label: 'Nível',
@@ -342,8 +325,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: 1),
 
-                // Gold
-                AccountAttributeCard(
+                ProfileAttributeCard(
                   icon: Icons.monetization_on,
                   iconColor: Colors.amber,
                   label: 'Ouro',
@@ -356,8 +338,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: 1),
 
-                // Gems
-                AccountAttributeCard(
+                ProfileAttributeCard(
                   icon: Icons.diamond,
                   iconColor: Colors.cyan,
                   label: 'Gemas',
@@ -369,8 +350,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: 1),
 
-                // Energy
-                AccountAttributeCard(
+                ProfileAttributeCard(
                   icon: Icons.bolt,
                   iconColor: Colors.orange,
                   label: 'Energia',
@@ -382,32 +362,20 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Botão salvar/criar conta
                 Row(
                   children: [
-                    // BOTÃO SALVAR / EDITAR
                     Expanded(
                       child: Watch((context){
                         final isRunning =
-                            _vmAccount
-                                .commands
-                                .saveAccountCommand
-                                .isExecuting
-                                .value ||
-                            _vmAccount
-                                .commands
-                                .updateAccountCommand
-                                .isExecuting
-                                .value;
+                            _vmProfiles.commands.createProfileCommand.isExecuting.value ||
+                            _vmProfiles.commands.updateProfileCommand.isExecuting.value;
 
                         return ElevatedButton(
-                          onPressed: isRunning ? null : _salvarConta,
+                          onPressed: isRunning ? null : _salvarPerfil,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                             foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                            backgroundColor: isRunning 
+                            backgroundColor: isRunning
                                 ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)
                                 : Theme.of(context).colorScheme.secondary,
                             shape: RoundedRectangleBorder(
@@ -420,14 +388,12 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
                               : Text(
-                                  _vmAccount.accountState.labelEditMode.value,
-                                  style: TextStyle(
+                                  _isEditing ? 'SALVAR' : 'CRIAR',
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -436,71 +402,49 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                       }),
                     ),
 
-                    const SizedBox(width: AppSpacing.md),
+                    if(_isEditing) ...[
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Watch((_){
+                          final isDeleting =
+                              _vmProfiles.commands.deleteProfileCommand.isExecuting.value;
+                          final isSaving =
+                              _vmProfiles.commands.createProfileCommand.isExecuting.value;
+                          final isUpdating =
+                              _vmProfiles.commands.updateProfileCommand.isExecuting.value;
 
-                    // BOTÃO EXCLUIR
-                    Expanded(
-                      child: Watch((_){
-                        final canDelete =
-                            _vmAccount.accountState.canDelete.value;
+                          final isBusy = isDeleting || isSaving || isUpdating;
 
-                        final isDeleting = _vmAccount
-                            .commands
-                            .deleteAccountCommand
-                            .isExecuting
-                            .value;
-
-                        final isSaving = _vmAccount
-                            .commands
-                            .saveAccountCommand
-                            .isExecuting
-                            .value;
-
-                        final isUpdating = _vmAccount
-                            .commands
-                            .updateAccountCommand
-                            .isExecuting
-                            .value;
-
-                        final isBusy = isDeleting || isSaving || isUpdating;
-
-                        return ElevatedButton(
-                          onPressed: canDelete && !isBusy
-                              ? _excluirConta
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
+                          return ElevatedButton(
+                            onPressed: isBusy ? null : _excluirPerfil,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                              backgroundColor: Colors.red.shade700,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(AppRadius.md),
+                              ),
                             ),
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimary,
-                            backgroundColor: Colors.red.shade700,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppRadius.md),
-                            ),
-                          ),
-                          child: isDeleting
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                            child: isDeleting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : const Text(
+                                    'EXCLUIR',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                )
-                              : Text(
-                                  'EXCLUIR',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        );
-                      }),
-                    ),
+                          );
+                        }),
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -512,7 +456,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   }
 }
 
-class AccountFormFieldsController {
+class ProfileFormFieldsController {
   final FormFieldControl email = _createField();
   final FormFieldControl name = _createField();
   final FormFieldControl displayName = _createField();
@@ -525,12 +469,6 @@ class AccountFormFieldsController {
       focus: FocusNode(),
       controller: TextEditingController(),
     );
-  }
-
-  void clear(){
-    for(final field in fields){
-      field.controller.clear();
-    }
   }
 
   void dispose(){

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
-class Account extends Equatable {
+class Profile extends Equatable {
+  final String id;
   final String name;
   final String email;
   final String displayName;
@@ -11,7 +12,8 @@ class Account extends Equatable {
   final int gems;
   final int energy;
 
-  const Account({
+  const Profile({
+    required this.id,
     required this.name,
     required this.email,
     required this.displayName,
@@ -21,10 +23,10 @@ class Account extends Equatable {
     required this.gold,
     required this.gems,
     required this.energy,
-  }) ;
+  });
 
-
-  Account copyWith({
+  Profile copyWith({
+    String? id,
     String? name,
     String? email,
     String? displayName,
@@ -34,8 +36,9 @@ class Account extends Equatable {
     double? gold,
     int? gems,
     int? energy,
-  }) {
-    return Account(
+  }){
+    return Profile(
+      id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
@@ -50,27 +53,14 @@ class Account extends Equatable {
 
   @override
   List<Object?> get props => [
-        name,
-        email,
-        displayName,
-        createdAt,
-        updatedAt,
-        level,
-        gold,
-        gems,
-        energy,
-      ];
+    id, name, email, displayName, createdAt, updatedAt,
+    level, gold, gems, energy,
+  ];
 
   @override
-  String toString() {
-    return 'Account('
-        'name: $name, '
-        'email: $email, '
-        'displayName: $displayName, '
-        'level: $level, '
-        'gold: $gold, '
-        'gems: $gems, '
-        'energy: $energy'
-        ')';
+  String toString(){
+    return 'Profile(id: $id, name: $name, email: $email, '
+        'displayName: $displayName, level: $level, gold: $gold, '
+        'gems: $gems, energy: $energy)';
   }
 }

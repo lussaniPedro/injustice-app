@@ -7,7 +7,7 @@ class CharacterFactory {
     return FakeFactory.character();
   }
 
-  /// Cria uma lista de Accounts com dados falsos
+  /// Cria uma lista de Profiles com dados falsos
   static List<Character> list([int count = 5]) {
     var list = List.generate(
       count,

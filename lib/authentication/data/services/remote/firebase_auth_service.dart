@@ -74,7 +74,9 @@ class FirebaseAuthService implements IAuthService {
   @override
   Future<AuthSession> signInWithGoogle() async {
     final googleSignIn = GoogleSignIn.instance;
-    await googleSignIn.initialize();
+    await googleSignIn.initialize(
+      serverClientId: "990828640118-f915pof199fhtr103anm2428sgflpdq9.apps.googleusercontent.com"
+    );
     final googleUser = await googleSignIn.authenticate();
 
     final googleAuth = googleUser.authentication;

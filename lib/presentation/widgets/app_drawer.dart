@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:injustice_app/authentication/presentation/controllers/auth_viewmodel.dart';
+import 'package:injustice_app/presentation/functions/ui_functions.dart';
+import 'package:signals_flutter/signals_flutter.dart';
+
 import '../../core/di/dependency_injection.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
-import '../../domain/models/account_entity.dart';
-import '../controllers/account_viewmodel.dart';
-import 'package:signals_flutter/signals_flutter.dart';
+import '../controllers/profile_session_state.dart';
 
 /// Drawer reutilizável para navegação entre páginas
 class AppDrawer extends StatelessWidget {
   AppDrawer({super.key});
 
-  final _vmAccount = injector.get<AccountViewModel>();
+  final _profileSession = injector.get<ProfileSessionState>();
+  final _vmAuth = injector.get<AuthViewModel>();
 
   @override
   Widget build(BuildContext context){
@@ -51,7 +54,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Injustice 2 Mobile',
+                  'InjusticeApp Mobile',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
                     fontWeight: FontWeight.bold,
@@ -86,53 +89,17 @@ class AppDrawer extends StatelessWidget {
               }
             },
           ),
-          ListTile(
-            leading: Icon(
-              Icons.person_add,
-              color: currentRoute == AppPaths.accountCreate
-                  ? Theme.of(context).colorScheme.secondary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            title: Watch(
-              (_) => Text(
-                _vmAccount.accountState.hasAccount.value
-                    ? 'Editar Conta'
-                    : 'Criar Conta',
-                style: currentRoute == AppPaths.accountCreate
-                    ? TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                      )
-                    : TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-              ),
-            ),
-            selected: currentRoute == AppPaths.accountCreate,
-            onTap: (){
-              context.pop();
-              if(currentRoute != AppPaths.accountCreate){
-                context.goNamed(AppRouteNames.accountCreate);
-              }
-            },
-          ),
           Watch((_){
-            final hasAccount = _vmAccount.accountState.hasAccount.value;
-
             return ListTile(
               leading: Icon(
-                Icons.people,
-                color: !hasAccount
-                    ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                    : currentRoute == AppPaths.characters
+                Icons.person_add,
+                color: currentRoute == AppPaths.profileCreate
                     ? Theme.of(context).colorScheme.secondary
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               title: Text(
-                'Personagens',
-                style: !hasAccount
-                    ? TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))
-                    : currentRoute == AppPaths.characters
+                'Editar Perfil',
+                style: currentRoute == AppPaths.profileCreate
                     ? TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.secondary,
@@ -141,23 +108,66 @@ class AppDrawer extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
               ),
+              selected: currentRoute == AppPaths.profileCreate,
+              onTap: (){
+                context.pop();
+
+                if(currentRoute != AppPaths.profileCreate){
+                  context.goNamed(AppRouteNames.profileCreate);
+                }
+              },
+            );
+          }),
+          Watch((_){
+            final profile = _profileSession.activeProfile.value;
+            final hasProfile = profile != null;
+
+            return ListTile(
+              leading: Icon(
+                Icons.people,
+                color: !hasProfile
+                    ? Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withValues(alpha: 0.5)
+                    : currentRoute == AppPaths.characters
+                        ? Theme.of(context).colorScheme.secondary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              title: Text(
+                'Personagens',
+                style: !hasProfile
+                    ? TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withValues(alpha: 0.5),
+                      )
+                    : currentRoute == AppPaths.characters
+                        ? TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.secondary,
+                          )
+                        : TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+              ),
               selected: currentRoute == AppPaths.characters,
-              onTap: hasAccount
+              onTap: hasProfile
                   ? (){
                       context.pop();
-
-                      Account account = _vmAccount.accountState.state.value!;
 
                       if(currentRoute != AppPaths.characters){
                         context.goNamed(
                           AppRouteNames.characters,
-                          extra: account,
+                          extra: profile,
                         );
                       }
                     }
                   : null,
             );
           }),
+          const Divider(),
           ListTile(
             leading: Icon(
               Icons.info,
@@ -182,6 +192,51 @@ class AppDrawer extends StatelessWidget {
               if(currentRoute != AppPaths.about){
                 context.goNamed(AppRouteNames.about);
               }
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.switch_account,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              'Trocar de Perfil',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              context.pop();
+              _profileSession.clearActiveProfile();
+              context.goNamed(AppRouteNames.profileSelection);
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.logout,
+              color: Colors.red.shade400,
+            ),
+            title: Text(
+              'Sair da Conta',
+              style: TextStyle(
+                color: Colors.red.shade400,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () async {
+              context.pop();
+
+              final confirm = await confirmDialog(
+                context,
+                title: 'Sair da conta',
+                message: 'Tem certeza que deseja sair?',
+                confirmText: 'SAIR',
+                icon: Icons.logout,
+              );
+
+              if (!confirm) return;
+
+              await _vmAuth.commands.signOut();
             },
           ),
         ],

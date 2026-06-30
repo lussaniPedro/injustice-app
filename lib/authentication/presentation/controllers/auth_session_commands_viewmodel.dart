@@ -1,3 +1,5 @@
+import 'package:injustice_app/core/di/dependency_injection.dart';
+import 'package:injustice_app/presentation/controllers/profile_session_state.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 import '../../../core/failure/failure.dart';
 import '../../../core/patterns/command.dart';
@@ -89,6 +91,9 @@ class AuthSessionCommands {
   }
 
   void _observeSignOut(){
-    _observeCommand<void>(_signOut, onSuccess: (_) => state.setUnauthenticated());
+    _observeCommand<void>(_signOut, onSuccess: (_){
+      state.setUnauthenticated();
+      injector.get<ProfileSessionState>().clearActiveProfile();
+    });
   }
 }
