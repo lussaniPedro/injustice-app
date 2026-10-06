@@ -3,92 +3,102 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
-import '../../core/di/dependency_injection.dart';
-import '../../core/routes/app_routes.dart';
-import '../../core/theme/app_theme.dart';
-import '../../domain/models/profile_entity.dart';
-import '../controllers/profile_session_state.dart';
+import '../../../core/di/dependency_injection.dart';
+import '../../../core/routes/app_routes.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../domain/models/profile_entity.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/theme_toggle_button.dart';
+import '../controllers/profile_session_state.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<HomeView> createState() => _HomePageState();
 }
 
-class _HomeViewState extends State<HomeView> {
-  late final ProfileSessionState _profileSession;
+class _HomePageState extends State<HomeView> {
+  final _profileSession = injector.get<ProfileSessionState>();
 
   @override
-  void initState(){
-    super.initState();
-    _profileSession = injector.get<ProfileSessionState>();
-  }
-
-  @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Injustice Mobile'),
-        actions: const [ThemeToggleButton()],
-      ),
-      drawer: AppDrawer(),
-      body: Watch((context){
+      appBar: const _HomeAppBar(),
+      drawer: const AppDrawer(),
+      body: Watch((_) {
         final profile = _profileSession.activeProfile.value;
 
-        if(profile == null){
-          return const Center(child: CircularProgressIndicator());
+        if (profile == null) {
+          return const _LoadingState();
         }
 
-        return _profileHeaderCard(context, profile);
+        return _ProfileContent(profile: profile);
       }),
     );
   }
+}
 
-  Widget _profileHeaderCard(BuildContext context, Profile profile){
-    final colorScheme = Theme.of(context).colorScheme;
+class _HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _HomeAppBar();
 
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: const Text('Injustice Mobile'),
+      actions: const [ThemeToggleButton()],
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator.adaptive(),
+    );
+  }
+}
+
+class _ProfileContent extends StatelessWidget {
+  const _ProfileContent({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(profile, colorScheme),
+          _ProfileHeader(profile: profile),
           const SizedBox(height: AppSpacing.xl),
-
-          _buildResourcesSection(profile, colorScheme),
+          _ResourcesSection(profile: profile),
           const SizedBox(height: AppSpacing.xl),
-
-          _buildProfileInfoSection(profile, colorScheme),
+          _ProfileInfoSection(profile: profile),
           const SizedBox(height: AppSpacing.xl),
-
-          Center(
-            child: ElevatedButton.icon(
-              onPressed: () => context.goNamed(
-                AppRouteNames.characters,
-                extra: profile,
-              ),
-              icon: const Icon(Icons.people),
-              label: const Text('Ver Meus Personagens'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.xl,
-                  vertical: AppSpacing.md,
-                ),
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: colorScheme.secondaryContainer,
-                foregroundColor: colorScheme.onSecondaryContainer,
-              ),
-            ),
-          ),
+          _ViewCharactersButton(profile: profile),
         ],
       ),
     );
   }
+}
 
-  Widget _buildProfileHeader(Profile profile, ColorScheme colorScheme){
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -111,84 +121,134 @@ class _HomeViewState extends State<HomeView> {
         children: [
           Row(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 3),
-                ),
-                child: CircleAvatar(
-                  radius: 35,
-                  backgroundColor: Colors.white.withValues(alpha: 0.2),
-                  child: Text(
-                    profile.displayName[0].toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              _Avatar(displayName: profile.displayName),
               const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      profile.displayName,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      profile.email,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                child: _UserInfo(
+                  displayName: profile.displayName,
+                  fullName: profile.name,
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'Nível ${profile.level}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ],
+          _LevelBadge(level: profile.level),
+        ],
+      ),
+    );
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  const _Avatar({required this.displayName});
+
+  final String displayName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 3),
+      ),
+      child: CircleAvatar(
+        radius: 35,
+        backgroundColor: Colors.white.withValues(alpha: 0.2),
+        child: Text(
+          displayName[0].toUpperCase(),
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UserInfo extends StatelessWidget {
+  const _UserInfo({
+    required this.displayName,
+    required this.fullName,
+  });
+
+  final String displayName;
+  final String fullName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          displayName,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          fullName,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white.withValues(alpha: 0.8),
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+class _LevelBadge extends StatelessWidget {
+  const _LevelBadge({required this.level});
+
+  final int level;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Nível $level',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildResourcesSection(Profile profile, ColorScheme colorScheme){
+class _ResourcesSection extends StatelessWidget {
+  const _ResourcesSection({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Recursos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        const _SectionTitle('Recursos'),
         const SizedBox(height: AppSpacing.md),
         Row(
           children: [
@@ -198,7 +258,6 @@ class _HomeViewState extends State<HomeView> {
                 label: 'Gemas',
                 value: profile.gems.toString(),
                 color: Colors.cyanAccent,
-                colorScheme: colorScheme,
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -208,7 +267,6 @@ class _HomeViewState extends State<HomeView> {
                 label: 'Energia',
                 value: profile.energy.toString(),
                 color: Colors.greenAccent,
-                colorScheme: colorScheme,
               ),
             ),
           ],
@@ -224,17 +282,162 @@ class _HomeViewState extends State<HomeView> {
           ).format(profile.gold),
           color: Colors.amberAccent,
           isGoldCard: true,
-          colorScheme: colorScheme,
         ),
       ],
     );
   }
+}
 
-  Widget _buildProfileInfoSection(Profile profile, ColorScheme colorScheme){
+class _ResourceCard extends StatelessWidget {
+  const _ResourceCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+    this.isGoldCard = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+  final bool isGoldCard;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: isGoldCard ? double.infinity : null,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
+        boxShadow: isDark
+            ? [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: 0.04),
+                  blurRadius: 2,
+                  spreadRadius: 1,
+                )
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 2,
+                  offset: const Offset(0, 2),
+                )
+              ],
+      ),
+      child: isGoldCard
+          ? _GoldResourceContent(
+              icon: icon,
+              label: label,
+              value: value,
+              color: color,
+            )
+          : _SimpleResourceContent(
+              icon: icon,
+              label: label,
+              value: value,
+              color: color,
+            ),
+    );
+  }
+}
+
+class _SimpleResourceContent extends StatelessWidget {
+  const _SimpleResourceContent({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 32),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GoldResourceContent extends StatelessWidget {
+  const _GoldResourceContent({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(width: AppSpacing.md),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProfileInfoSection extends StatelessWidget {
+  const _ProfileInfoSection({required this.profile});
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Informações do Perfil', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+        const _SectionTitle('Informações do Perfil'),
         const SizedBox(height: AppSpacing.md),
         Container(
           padding: const EdgeInsets.all(AppSpacing.md),
@@ -251,7 +454,11 @@ class _HomeViewState extends State<HomeView> {
                   color: colorScheme.secondary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(Icons.calendar_today, color: colorScheme.secondary, size: 24),
+                child: Icon(
+                  Icons.calendar_today,
+                  color: colorScheme.secondary,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Column(
@@ -259,12 +466,18 @@ class _HomeViewState extends State<HomeView> {
                 children: [
                   Text(
                     'Data de Criação',
-                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     DateFormat('dd/MM/yyyy').format(profile.createdAt),
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -276,66 +489,49 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-class _ResourceCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  final bool isGoldCard;
-  final ColorScheme colorScheme;
+class _ViewCharactersButton extends StatelessWidget {
+  const _ViewCharactersButton({required this.profile});
 
-  const _ResourceCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-    this.isGoldCard = false,
-    required this.colorScheme,
-  });
+  final Profile profile;
 
   @override
-  Widget build(BuildContext context){
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      width: isGoldCard ? double.infinity : null,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.1)),
-        boxShadow: isDark
-            ? [BoxShadow(color: Colors.white.withValues(alpha: 0.4), blurRadius: 2, spreadRadius: 1)]
-            : [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        mainAxisAlignment: isGoldCard ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-        children: [
-          if(isGoldCard)
-            Row(
-              children: [
-                Icon(icon, color: color, size: 28),
-                const SizedBox(width: AppSpacing.md),
-                Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-              ],
-            )
-          else
-            Column(
-              children: [
-                Icon(icon, color: color, size: 32),
-                const SizedBox(height: AppSpacing.sm),
-                Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-              ],
-            ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isGoldCard ? 22 : 18,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () => context.goNamed(
+          AppRouteNames.characters,
+          extra: profile,
+        ),
+        icon: const Icon(Icons.people),
+        label: const Text('Ver Meus Personagens'),
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl,
+            vertical: AppSpacing.md,
           ),
-        ],
+          minimumSize: const Size(double.infinity, 50),
+          backgroundColor: colorScheme.secondaryContainer,
+          foregroundColor: colorScheme.onSecondaryContainer,
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
       ),
     );
   }

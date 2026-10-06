@@ -5,7 +5,6 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/di/dependency_injection.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/typedefs/types_defs.dart';
-import '../../../../core/validators/email_str_validator.dart';
 import '../../../../core/validators/empty_str_validator.dart';
 import '../../../../domain/models/profile_entity.dart';
 import '../../controllers/profiles_state_viewmodel.dart';
@@ -118,7 +117,6 @@ class _ProfileCreateViewState extends State<ProfileCreateView> {
   }
 
   void _preencherCampos(Profile profile){
-    _formFields.email.controller.text = profile.email;
     _formFields.name.controller.text = profile.name;
     _formFields.displayName.controller.text = profile.displayName;
 
@@ -173,7 +171,6 @@ class _ProfileCreateViewState extends State<ProfileCreateView> {
 
     final newProfile = Profile(
       id: _isEditing ? widget.profile!.id : const Uuid().v4(),
-      email: _formFields.email.controller.text.trim(),
       name: _formFields.name.controller.text.trim(),
       displayName: _formFields.displayName.controller.text.trim(),
       createdAt: _isEditing ? widget.profile!.createdAt : _createdAt,
@@ -257,21 +254,6 @@ class _ProfileCreateViewState extends State<ProfileCreateView> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xl),
-
-                InputTextField(
-                  fieldKey: _formFields.email.key,
-                  controller: _formFields.email.controller,
-                  focusNode: _formFields.email.focus,
-                  label: 'Email',
-                  hint: 'Digite seu e-mail',
-                  prefixIcon: Icons.email,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) => validateField(value, [
-                    EmptyStrValidator(),
-                    EmailStrValidator(),
-                  ]),
-                ),
-                const SizedBox(height: AppSpacing.md),
 
                 InputTextField(
                   fieldKey: _formFields.name.key,

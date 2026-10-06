@@ -1,15 +1,35 @@
 import 'dart:convert';
 
+import '../../authentication/data/services/remote/i_auth_service.dart';
 import '../../core/failure/failure.dart';
 import '../../core/typedefs/types_defs.dart';
-import 'character_local_storage_interface.dart';
 import '../../domain/models/character_entity.dart';
 import '../../domain/models/character_mapper.dart';
+import '../../presentation/controllers/profile_session_state.dart';
+import 'character_local_storage_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/patterns/result.dart';
 
 final class CharacterSharedPreferencesService implements ICharacterLocalStorage {
-  static const String _storageKey = 'characters';
+  final IAuthService _authService;
+  final ProfileSessionState _profileSession;
+
+  CharacterSharedPreferencesService({
+    required IAuthService authService,
+    required ProfileSessionState profileSession,
+  })  : _authService = authService,
+        _profileSession = profileSession;
+
+  String? get _storageKey {
+    final uid = _authService.currentSession?.user.id;
+    final profileId = _profileSession.activeProfile.value?.id;
+
+    if (uid == null || profileId == null) {
+      return null;
+    }
+
+    return 'characters_${uid}_$profileId';
+  }
 
   @override
   Future<CharacterResult> deleteCharacter(String id) async {
@@ -38,8 +58,13 @@ final class CharacterSharedPreferencesService implements ICharacterLocalStorage 
   @override
   Future<VoidResult> deleteAllCharacters() async {
     try {
+      final key = _storageKey;
+      if (key == null) {
+        return Error(DefaultFailure('Nenhum perfil ativo ou usuário autenticado.'));
+      }
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_storageKey);
+      await prefs.remove(key);
 
       return Success(null);
     } catch(e){
@@ -52,8 +77,13 @@ final class CharacterSharedPreferencesService implements ICharacterLocalStorage 
   @override
   Future<ListCharacterResult> getAllCharacters() async {
     try {
+      final key = _storageKey;
+      if (key == null) {
+        return Error(DefaultFailure('Nenhum perfil ativo ou usuário autenticado.'));
+      }
+
       final prefs = await SharedPreferences.getInstance();
-      final result = prefs.getString(_storageKey);
+      final result = prefs.getString(key);
 
       if(result == null || result.isEmpty){
         return Error(EmptyResultFailure());
@@ -155,6 +185,11 @@ final class CharacterSharedPreferencesService implements ICharacterLocalStorage 
   }
 
   Future<void> _saveCharacters(List<Character> characters) async {
+    final key = _storageKey;
+    if (key == null) {
+      throw ApiLocalFailure('Nenhum perfil ativo ou usuário autenticado.');
+    }
+
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -162,7 +197,7 @@ final class CharacterSharedPreferencesService implements ICharacterLocalStorage 
         characters.map((c) => CharacterMapper.toMap(c)).toList(),
       );
 
-      await prefs.setString(_storageKey, jsonString);
+      await prefs.setString(key, jsonString);
     } catch(e){
       throw ApiLocalFailure('Erro ao salvar personagens: $e');
     }

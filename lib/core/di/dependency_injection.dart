@@ -1,7 +1,6 @@
 import 'package:auto_injector/auto_injector.dart';
 import 'package:injustice_app/presentation/controllers/profile_session_state.dart';
 
-// Imports novos no topo do arquivo
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../data/repositories/profile_repository_interface.dart';
 import '../../data/repositories/character_repository_impl.dart';
@@ -86,7 +85,9 @@ void setupDependencyInjection() {
   injector.addSingleton<ISignOutUseCase>(SignOutUseCase.new);
   injector.addSingleton<IAuthFacade>(AuthFacadeImpl.new);
 
-  injector.addSingleton<AuthViewModel>(AuthViewModel.new);
+  injector.addSingleton<AuthViewModel>(
+    (IAuthFacade facade, IAuthRepository authRepository) => AuthViewModel(facade, authRepository),
+  );
 
   injector.commit();
 }

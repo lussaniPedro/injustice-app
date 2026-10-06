@@ -1,3 +1,4 @@
+import '../../data/repositories/i_auth_repository.dart';
 import '../../domain/facades/i_auth_facade.dart';
 import '../commands/auth_commands.dart';
 import 'auth_session_commands_viewmodel.dart';
@@ -10,7 +11,7 @@ class AuthViewModel {
   AuthSessionState get session => _session;
   AuthSessionCommands get commands => _commands;
 
-  AuthViewModel(IAuthFacade facade) {
+  AuthViewModel(IAuthFacade facade, IAuthRepository authRepository) {
     _session = AuthSessionState();
     _commands = AuthSessionCommands(
       state: _session,
@@ -19,5 +20,14 @@ class AuthViewModel {
       signInWithGoogleCommand: SignInWithGoogleCommand(facade),
       signOutCommand: SignOutCommand(facade),
     );
+
+    _initializeSession(authRepository);
+  }
+
+  void _initializeSession(IAuthRepository authRepository) {
+    final currentSession = authRepository.currentSession;
+    if (currentSession != null && currentSession.isValid) {
+      _session.setAuthenticated(currentSession);
+    }
   }
 }

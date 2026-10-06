@@ -5,7 +5,6 @@ class ProfileMapper {
     return {
       'id': profile.id,
       'name': profile.name,
-      'email': profile.email,
       'displayName': profile.displayName,
       'createdAt': profile.createdAt.toIso8601String(),
       'updatedAt': profile.updatedAt.toIso8601String(),
@@ -20,7 +19,6 @@ class ProfileMapper {
     return Profile(
       id: map['id'] as String,
       name: map['name'] as String,
-      email: map['email'] as String,
       displayName: map['displayName'] as String,
       createdAt: DateTime.parse(map['createdAt'] as String),
       updatedAt: DateTime.parse(map['updatedAt'] as String),

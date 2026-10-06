@@ -220,7 +220,7 @@ ThemeData get lightTheme => ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppRadius.lg),
       side: BorderSide(
-        color: LightModeColors.lightOutline.withOpacity(0.2),
+        color: LightModeColors.lightOutline.withValues(alpha: 0.2),
         width: 1,
       ),
     ),

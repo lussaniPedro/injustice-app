@@ -105,13 +105,34 @@ class FirebaseAuthService implements IAuthService {
   // Restaurar sessão salva ao abrir o app
   @override
   Future<void> initSession() async {
-    final token = await _localSession.getValidToken();
-    if (token == null) return;
+    // Certifica que o estado de autenticação do Firebase foi carregado.
+    await _firebaseAuth.authStateChanges().first;
 
-    _currentSessionSignal.value = AuthSession(
-      user: AuthUser(id: token.uid, name: token.name ?? '', email: token.email ?? ''),
-      token: AuthToken(value: token.value, expiresAt: token.expiresAt),
+    final fb.User? fbUser = _firebaseAuth.currentUser;
+    if (fbUser == null) return;
+
+    final tokenStr = await fbUser.getIdToken() ?? '';
+    final tokenExp = DateTime.now().add(const Duration(hours: 1));
+    final localToken = await _localSession.getValidToken();
+
+    final session = AuthSession(
+      user: AuthUser(
+        id: fbUser.uid,
+        name: fbUser.displayName ?? localToken?.name ?? '',
+        email: fbUser.email ?? localToken?.email ?? '',
+      ),
+      token: AuthToken(value: tokenStr, expiresAt: tokenExp),
     );
+
+    _currentSessionSignal.value = session;
+    await _localSession.setToken(SessionToken(
+      uid: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      value: tokenStr,
+      expiresAt: tokenExp,
+      provider: localToken?.provider ?? AuthProvider.emailPassword,
+    ));
   }
 
   // Helper interno: monta a AuthSession e já salva localmente

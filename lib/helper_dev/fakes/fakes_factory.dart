@@ -14,7 +14,6 @@ abstract class FakeFactory {
     return Profile(
       id: _faker.datatype.uuid(),
       name: _faker.name.fullName(),
-      email: _faker.internet.email(),
       displayName: _faker.name.firstName(),
       createdAt: now.subtract(
         Duration(days: _faker.datatype.number(min: 10, max: 365)),
